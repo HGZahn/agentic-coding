@@ -13,7 +13,7 @@ Configuration and setup for agentic coding with LLMs.
 | Tool | Status |
 |------|--------|
 | **Claude Code** | Default |
-| Codex | Supported | Symlinked config |
+| Codex | Symlinked config |
 | Other LLM agents | Symlinked config |
 
 ---
