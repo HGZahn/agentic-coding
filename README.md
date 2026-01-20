@@ -1,8 +1,8 @@
 # Agentic Coding
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-orange?style=flat-square&logo=anthropic)](https://code.claude.com/docs/de/overview)
-[![Codex](https://img.shields.io/badge/Codex-blue?style=flat-square&logo=openai)](https://platform.openai.com/docs/guides/code)
-[![Agents](https://img.shields.io/badge/Agents-purple?style=flat-square&logo=readme)](https://AGENTS.md)
+[![Codex](https://img.shields.io/badge/OpenAI%20Codex-blue?style=flat-square&logo=openai)](https://platform.openai.com/docs/guides/code)
+[![Agents](https://img.shields.io/badge/Agents.md-black?style=flat-square)](https://AGENTS.md)
 
 Configuration and setup for agentic coding with LLMs.
 
