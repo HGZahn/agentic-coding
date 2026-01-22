@@ -44,33 +44,67 @@ All configurations are defined in `.claude/` (Claude Code's canonical directory)
 - **`rules/`**: Behavior guidelines and constraints for LLM agents
 - **`skills/`**: Reusable capabilities that can be invoked across different contexts
 
-### Settings Management
+## Available Commands
 
-**`.claude/settings.json`**: Controls plugin enablement and core settings.
+Commands are invoked with `/command-name` in Claude Code:
+
+| Command | Description |
+|---------|-------------|
+| `/ai-refactor` | Review codebase against LLM/AI coding principles, output findings to FINDINGS.md |
+| `/commit-push [msg]` | Git commit and push with safety checks (secrets, broken templates) |
+| `/interview-me [plan]` | Interview about a plan file to refine specs (uses Opus) |
+
+## Available Skills
+
+Skills are invoked with the Skill tool when relevant context is detected:
+
+| Skill | Purpose |
+|-------|---------|
+| `coding-guidelines` | AI-first coding principles for LLM-maintained code |
+| `systematic-debugging` | Four-phase debugging: root cause first, then fix |
+| `skill-creator` | Guide for creating new skills with init_skill.py |
+| `ruff` | Python linter/formatter usage patterns |
+| `uv` | Python package/project manager workflows |
+
+## Creating New Content
+
+### Command Format
+
+Commands are `.md` files in `.claude/commands/` with YAML frontmatter:
+
+```yaml
+---
+description: Human-readable description (required)
+argument-hint: [optional-args]        # Shown in command list
+allowed-tools: Bash(git:*)            # Tool restrictions
+model: haiku                          # Model override
+---
+```
+
+### Skill Format
+
+Skills are directories in `.claude/skills/` containing `SKILL.md`:
+
+```yaml
+---
+name: skill-name                      # Required
+description: When to use and what it provides  # Required
+---
+```
+
+Skills may include optional subdirectories:
+- `scripts/` - Executable code for deterministic tasks
+- `references/` - Documentation loaded as-needed
+- `assets/` - Files used in output (templates, images)
+
+To create a new skill, use the `skill-creator` skill or run:
+```bash
+.claude/skills/skill-creator/scripts/init_skill.py <name> --path .claude/skills/
+```
+
+## Settings
+
+**`.claude/settings.json`**: Controls plugin enablement.
 
 Currently enabled plugins:
 - `ralph-loop@claude-plugins-official`: Ralph Loop functionality
-
-## Working in This Repository
-
-### Adding New Configurations
-
-1. Add files to the appropriate `.claude/` subdirectory:
-   - New slash command → `.claude/commands/`
-   - New agent definition → `.claude/agents/`
-   - New behavior rule → `.claude/rules/`
-   - New skill → `.claude/skills/`
-
-2. The symlink structure automatically makes these available to other tools (Codex, Agent frameworks, etc.)
-
-### Modifying Settings
-
-Edit `.claude/settings.json` to enable/disable plugins or adjust core configuration.
-
-### Multi-Tool Philosophy
-
-Changes made in `.claude/` propagate to all supported tools through symlinks, maintaining consistency. Each tool may interpret configurations slightly differently (e.g., "commands" vs "prompts" vs "workflows"), but the content remains synchronized.
-
-## Repository Status
-
-This repository is in early stages with scaffold directories in place. The configuration directories are currently empty and ready to be populated with custom agents, commands, rules, and skills as needed.
