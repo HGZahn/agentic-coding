@@ -1,6 +1,6 @@
 # Agentic Coding
 
-Config framework for LLM coding assistants. Claude Code is the source of truth; other tools symlink to it.
+Config Files for LLM coding assistants. Claude Code is the source of truth; other tools symlink to it.
 
 ## Structure
 
