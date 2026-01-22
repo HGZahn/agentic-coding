@@ -30,7 +30,6 @@ All configurations are defined in `.claude/` (Claude Code's canonical directory)
 ├── rules -> ../.claude/rules
 └── skills -> ../.claude/skills
 
-.opencode/        # Extensible for other tools
 ```
 
 **Key principle**: Claude Code is the gold standard. Other tools reference `.claude/` to ensure consistent behavior across different agentic coding environments.
