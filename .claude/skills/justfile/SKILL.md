@@ -23,9 +23,14 @@ reliable syntax and validation steps.
    - New automation: add recipe + parameters + dependencies.
    - Existing automation: preserve behavior and adjust syntax/settings.
    - Broken automation: capture failure output first, then update only root cause.
-3. Write or edit recipes using `references/justfile-syntax.md`.
-4. Validate with `scripts/validate_justfile.sh [PATH]`.
-5. Run safely:
+3. Load only the reference needed for the task:
+   - Syntax and semantics: `references/language.md` (parameters, functions, quoting, fallback semantics)
+   - Implementation workflow and debugging: `references/execution.md` (discovery, parallelism, timestamps, signal handling)
+   - Command/options lookup: `references/cli-manpage.md` (most-used CLI and env mappings)
+   - Copy-paste patterns: `references/cookbook.md` (task snippets and safe templates)
+4. Write or edit recipes.
+5. Validate with `scripts/validate_justfile.sh [PATH]`.
+6. Run safely:
    - `just --dry-run <recipe>` for risky commands.
    - `just <recipe> ...` once validation and dry-run are clean.
 
@@ -53,6 +58,9 @@ Use `--justfile <path>` when operating on non-default file locations.
 
 ## Resources
 
-- Syntax and patterns: `references/justfile-syntax.md`
+- Syntax and semantics: `references/language.md`
+- Execution workflow and troubleshooting: `references/execution.md`
+- Most-used CLI/manpage subset: `references/cli-manpage.md`
+- Practical examples: `references/cookbook.md`
 - Deterministic validation: `scripts/validate_justfile.sh`
 - Full manual: `https://just.systems/man/en/`
