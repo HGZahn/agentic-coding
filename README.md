@@ -1,34 +1,40 @@
 # Agentic Coding
 
-Config Files for LLM coding assistants. Claude Code is the source of truth; other tools symlink to it.
+Config files for LLM coding assistants. `.agents/` and `AGENTS.md` are the source of truth; tool-specific locations symlink to them.
 
 ## Structure
 
 ```
 agentic-coding/
-├── .claude/                    # Canonical config (edit here)
+├── .agents/                    # Canonical config (edit here)
 │   ├── settings.json           # Plugins, permissions
 │   ├── commands/               # Slash commands (/command-name)
 │   │   ├── ai-refactor.md
 │   │   ├── commit-push.md
 │   │   └── interview-me.md
 │   ├── skills/                 # Domain knowledge
+│   │   ├── agent-browser/
 │   │   ├── coding-guidelines/
-│   │   ├── systematic-debugging/
+│   │   ├── justfile/
+│   │   ├── value-realization/
 │   │   ├── skill-creator/
+│   │   ├── systematic-debugging/
 │   │   ├── ruff/
 │   │   └── uv/
 │   ├── agents/                 # Custom agents (empty)
 │   ├── rules/                  # Behavior rules (empty)
-│   └── hooks/                  # Hook scripts (empty)
+│   ├── hooks/                  # Hook scripts (empty)
+│   └── workflows -> commands   # Compatibility alias
 │
-├── .agent/                     # Generic agent tool
-│   └── [symlinks to .claude/]
+├── .claude/                    # Claude compatibility symlink
+│   └── -> .agents
 ├── .codex/                     # OpenAI Codex
-│   └── [symlinks to .claude/]
+│   ├── prompts -> ../.agents/commands
+│   ├── rules -> ../.agents/rules
+│   └── skills -> ../.agents/skills
 │
-├── CLAUDE.md                   # Project instructions
-└── AGENTS.md -> CLAUDE.md      # Alias for other tools
+├── AGENTS.md                   # Canonical project instructions
+└── CLAUDE.md -> AGENTS.md      # Claude compatibility alias
 ```
 
 ## Quick Reference
@@ -41,11 +47,11 @@ agentic-coding/
 
 ## Extending
 
-Add to `.claude/`:
+Add to `.agents/`:
 - `commands/*.md` - new slash commands
 - `skills/<name>/SKILL.md` - new skills
 - `agents/*.md` - agent definitions
 - `rules/*.md` - behavior constraints
 - `hooks/*.sh` - lifecycle scripts
 
-See CLAUDE.md for format details.
+See AGENTS.md for format details.
