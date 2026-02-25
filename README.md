@@ -1,6 +1,6 @@
 # Agentic Coding
 
-Config files for LLM coding assistants. `.agents/` and `AGENTS.md` are the source of truth; tool-specific locations symlink to them.
+Config files for LLM coding assistants. `.agents/` and `AGENTS.md` are the source of truth; shared Claude folders symlink to `.agents/`.
 
 ## Structure
 
@@ -26,12 +26,13 @@ agentic-coding/
 │   ├── hooks/                  # Hook scripts (empty)
 │   └── workflows -> commands   # Compatibility alias
 │
-├── .claude/                    # Claude compatibility symlink
-│   └── -> .agents
-├── .codex/                     # OpenAI Codex
-│   ├── prompts -> ../.agents/commands
+├── .claude/                    # Claude compatibility directory
+│   ├── agents -> ../.agents/agents
+│   ├── commands -> ../.agents/commands
+│   ├── hooks -> ../.agents/hooks
 │   ├── rules -> ../.agents/rules
-│   └── skills -> ../.agents/skills
+│   ├── skills -> ../.agents/skills
+│   └── settings.json           # Claude-specific settings overrides
 │
 ├── AGENTS.md                   # Canonical project instructions
 └── CLAUDE.md -> AGENTS.md      # Claude compatibility alias

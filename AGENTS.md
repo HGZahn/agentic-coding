@@ -10,7 +10,7 @@ This file provides guidance to coding agents when working in this repository.
 
 ### Single Source of Truth Pattern
 
-All configurations are defined in `.agents/` (canonical directory) and exposed to other tools via symlinks:
+All shared configurations are defined in `.agents/` (canonical directory) and exposed to Claude via folder symlinks:
 
 ```
 .agents/          # Canonical configuration source (edit here)
@@ -22,23 +22,23 @@ All configurations are defined in `.agents/` (canonical directory) and exposed t
 ├── skills/       # Reusable skills
 └── workflows -> commands  # Compatibility alias
 
-.claude/          # Compatibility symlink
-└── -> .agents
-
-.codex/           # OpenAI Codex (symlinked)
-├── prompts -> ../.agents/commands
+.claude/          # Claude compatibility directory
+├── agents -> ../.agents/agents
+├── commands -> ../.agents/commands
+├── hooks -> ../.agents/hooks
 ├── rules -> ../.agents/rules
-└── skills -> ../.agents/skills
+├── skills -> ../.agents/skills
+└── settings.json # Claude-specific settings overrides
 ```
 
-**Key principle**: `.agents/` is the gold standard. Other tools reference it directly or through compatibility symlinks.
+**Key principle**: `.agents/` is the gold standard for shared config. `.claude/settings.json` is the only Claude-local override file.
 
 ## Configuration Structure
 
 ### Directory Purposes
 
 - **`agents/`**: Define custom agent behaviors and specialized workflows
-- **`commands/`**: Custom slash commands that expand to prompts (mapped as workflows/prompts in other tools)
+- **`commands/`**: Custom slash commands that expand to prompts
 - **`rules/`**: Behavior guidelines and constraints for LLM agents
 - **`skills/`**: Reusable capabilities that can be invoked across different contexts
 - **`hooks/`**: Lifecycle and automation scripts
