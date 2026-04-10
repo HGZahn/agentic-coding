@@ -11,6 +11,7 @@ The workflow is intentionally simple:
 - `git`
 - `curl`
 - `node` + `npx`
+- `unzip`
 - internet access (for upstream skill sources and GitHub downloads)
 
 ## Command A: Update This `agentic-coding` Repo
@@ -18,14 +19,13 @@ The workflow is intentionally simple:
 Run from the root of this repository:
 
 ```bash
-./scripts/update-agentic-coding.sh
+just update
 ```
 
 What it does:
 - refreshes curated upstream skills (`agent-browser`, `justfile`, `value-realization`, `skill-creator`, `ruff`, `uv`, `systematic-debugging`)
-- refreshes all skills from `pbakaus/impeccable`
-- rewrites Impeccable skill names to local `i-*` naming
-- removes replaced local legacy names (`i-frontend-design`, `i-teach-impeccable`)
+- downloads the pre-prefixed Impeccable Codex bundle from `https://impeccable.style/api/download/bundle/universal-prefixed`
+- refreshes mapped local Impeccable `i-*` skills from that bundle
 - rebuilds `skills-lock.json` from current `.agents/skills` + `skills.sources.json`
 
 ## Command B: Install/Update `.agents` In Another Repo
@@ -33,7 +33,7 @@ What it does:
 Run this **inside the target project directory**:
 
 ```bash
-./scripts/setup-own-repo.sh
+get-started.sh
 ```
 
 What it does:
@@ -47,7 +47,7 @@ What it does:
 Also run this inside the target project directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh| bash
+curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
 ```
 
 ## Notes

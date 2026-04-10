@@ -2,8 +2,7 @@ update:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-    cd "$ROOT_DIR"
+    cd "{{ justfile_directory() }}"
 
     echo "Updating curated upstream skills..."
     npx -y skills add https://github.com/iloveitaly/ai-skills --skill justfile --agent codex -y
@@ -13,50 +12,32 @@ update:
     npx -y skills add https://github.com/astral-sh/claude-code-plugins/tree/main/plugins/astral/skills --skill ruff --skill uv --agent codex -y
     npx -y skills add https://github.com/ChrisWiles/claude-code-showcase/tree/main/.claude/skills/systematic-debugging --skill systematic-debugging --agent codex -y
 
-    echo "Updating impeccable and converting to i-* names..."
-    npx -y skills add https://github.com/pbakaus/impeccable --skill '*' --agent codex -y
+    echo "Refreshing Impeccable i-* skills from prefixed bundle..."
+    TMP_DIR="$(mktemp -d)"
+    cleanup() {
+    rm -rf "$TMP_DIR"
+    }
+    trap cleanup EXIT
 
-    impeccable_skills=(
-    adapt animate arrange audit bolder clarify colorize critique delight distill
-    extract harden impeccable normalize onboard optimize overdrive polish quieter
-    shape typeset
+    BUNDLE_PATH="${TMP_DIR}/impeccable.bundle.zip"
+    BUNDLE_DIR="${TMP_DIR}/impeccable.bundle"
+    curl -fsSL "https://impeccable.style/api/download/bundle/universal-prefixed" -o "$BUNDLE_PATH"
+    unzip -q "$BUNDLE_PATH" -d "$BUNDLE_DIR"
+
+    mapfile -t impeccable_skills < <(
+    node -e "const s=require('./skills.sources.json').skills; for (const k of Object.keys(s).sort((a,b)=>a.localeCompare(b))) if (k.startsWith('i-')) console.log(k);"
     )
 
-    for base in "${impeccable_skills[@]}"; do
-    src=".agents/skills/${base}"
-    dst=".agents/skills/i-${base}"
-    if [[ -d "$src" ]]; then
-        rm -rf "$dst"
-        mv "$src" "$dst"
+    for skill in "${impeccable_skills[@]}"; do
+    src="${BUNDLE_DIR}/.codex/skills/${skill}"
+    dst=".agents/skills/${skill}"
+    if [[ ! -d "$src" ]]; then
+        echo "Missing Impeccable skill in bundle: ${skill}" >&2
+        exit 1
     fi
+    rm -rf "$dst"
+    cp -R "$src" "$dst"
     done
-
-    for skill_dir in .agents/skills/i-*; do
-    skill_file="${skill_dir}/SKILL.md"
-    [[ -f "$skill_file" ]] || continue
-    skill_name="$(basename "$skill_dir")"
-    python - "$skill_file" "$skill_name" <<'PY'
-    import re
-    import sys
-    from pathlib import Path
-
-    skill_file = Path(sys.argv[1])
-    new_name = sys.argv[2]
-    text = skill_file.read_text(encoding="utf-8")
-
-    if text.startswith("---\n"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            fm = parts[1]
-            body = parts[2]
-            fm2, count = re.subn(r"(?m)^name:\s*.*$", f"name: {new_name}", fm, count=1)
-            if count == 0:
-                fm2 = f"\nname: {new_name}\n" + fm
-            skill_file.write_text(f"---{fm2}---{body}", encoding="utf-8")
-    PY
-    done
-
-    rm -rf .agents/skills/i-frontend-design .agents/skills/i-teach-impeccable
 
     echo "Rebuilding skills-lock.json..."
     node <<'NODE'

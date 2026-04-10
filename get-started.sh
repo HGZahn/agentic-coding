@@ -22,7 +22,7 @@ trap cleanup EXIT
 echo "Downloading ${REPO_OWNER_REPO}@${REPO_REF}..."
 curl -fsSL "https://codeload.github.com/${REPO_OWNER_REPO}/tar.gz/${REPO_REF}" -o "$ARCHIVE_PATH"
 
-TOP_DIR="$(tar -tzf "$ARCHIVE_PATH" | head -1 | cut -d/ -f1)"
+TOP_DIR="$(tar -tzf "$ARCHIVE_PATH" | sed -n '1p' | cut -d/ -f1)"
 tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
 
 SRC_DIR="${TMP_DIR}/${TOP_DIR}"
