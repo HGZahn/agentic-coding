@@ -1,58 +1,73 @@
 # Agentic Coding
 
-Config files for LLM coding assistants. `.agents/` and `AGENTS.md` are the source of truth; shared Claude folders symlink to `.agents/`.
+Curated `.agents` configuration and skills source for personal/team bootstrap with `npx skills`.
+
+## Get Started
+
+### Use these skills in your own repo (recommended)
+
+1. Copy the lock file into your repo:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/skills-lock.json -o skills-lock.json
+   ```
+2. Install all locked skills:
+   ```bash
+   npx -y skills experimental_install -y
+   ```
+
+This installs the curated set (including `i-*` skills) into your repo’s `.agents/skills/`.
+
+### Setup `.agents` scaffold in your own repo
+
+If you also want commands/settings/rules/hooks from this repo:
+
+```bash
+git clone --depth 1 https://github.com/HGZahn/agentic-coding.git /tmp/agentic-coding
+cp -R /tmp/agentic-coding/.agents ./
+cp /tmp/agentic-coding/AGENTS.md ./AGENTS.md
+cp /tmp/agentic-coding/skills-lock.json ./skills-lock.json
+npx -y skills experimental_install -y
+```
+
+### Install directly from this repo source
+
+```bash
+npx -y skills add HGZahn/agentic-coding --skill '*' --agent codex -y
+```
+
+Use this when you want the latest skills from this repository without using the lock file.
+
+## Maintainer Workflow
+
+### Rebuild curated lock
+
+After changing anything under `.agents/skills/` or `skills.sources.json`:
+
+```bash
+./scripts/rebuild-skills-lock.sh
+```
+
+### Reinstall from lock locally
+
+```bash
+./scripts/bootstrap-skills.sh
+```
 
 ## Structure
 
-```
+```text
 agentic-coding/
-├── .agents/                    # Canonical config (edit here)
-│   ├── settings.json           # Plugins, permissions
-│   ├── commands/               # Slash commands (/command-name)
-│   │   ├── ai-refactor.md
-│   │   ├── commit-push.md
-│   │   └── interview-me.md
-│   ├── skills/                 # Domain knowledge
-│   │   ├── agent-browser/
-│   │   ├── coding-guidelines/
-│   │   ├── justfile/
-│   │   ├── value-realization/
-│   │   ├── skill-creator/
-│   │   ├── systematic-debugging/
-│   │   ├── ruff/
-│   │   └── uv/
-│   ├── agents/                 # Custom agents (empty)
-│   ├── rules/                  # Behavior rules (empty)
-│   ├── hooks/                  # Hook scripts (empty)
-│   └── workflows -> commands   # Compatibility alias
-│
-├── .claude/                    # Claude compatibility directory
-│   ├── agents -> ../.agents/agents
-│   ├── commands -> ../.agents/commands
-│   ├── hooks -> ../.agents/hooks
-│   ├── rules -> ../.agents/rules
-│   ├── skills -> ../.agents/skills
-│   └── settings.json           # Claude-specific settings overrides
-│
-├── AGENTS.md                   # Canonical project instructions
-└── CLAUDE.md -> AGENTS.md      # Claude compatibility alias
+├── .agents/
+│   ├── settings.json
+│   ├── commands/
+│   ├── skills/
+│   ├── agents/
+│   ├── hooks/
+│   └── rules/
+├── scripts/
+│   ├── bootstrap-skills.sh
+│   └── rebuild-skills-lock.sh
+├── skills.sources.json
+├── skills-lock.json
+└── AGENTS.md
 ```
-
-## Quick Reference
-
-| Commands | Skills |
-|----------|--------|
-| `/ai-refactor` - code review | `coding-guidelines` |
-| `/commit-push` - git workflow | `systematic-debugging` |
-| `/interview-me` - spec refinement | `skill-creator`, `ruff`, `uv` |
-
-## Extending
-
-Add to `.agents/`:
-- `commands/*.md` - new slash commands
-- `skills/<name>/SKILL.md` - new skills
-- `agents/*.md` - agent definitions
-- `rules/*.md` - behavior constraints
-- `hooks/*.sh` - lifecycle scripts
-
-See AGENTS.md for format details.

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser",
+      "sourceType": "github",
+      "computedHash": "fbf66fd85ccad0d42a287d346503782d7a97848e67595d7e8c840434d572ee81"
+    },
+    "coding-guidelines": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "2f0da455d4ffc077f9e6ee46288735680ae06c593e0834c0de85b88b512122da",
+      "ref": "master"
+    },
+    "i-adapt": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "a0ae52a5eef906efc48e6ed9a95706ca0df08bd7302ab2d82539940b7d75a673",
+      "ref": "master"
+    },
+    "i-animate": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "e20aabb3d31651cc46be59b42dc2eff9d2c859e99024fd3bc24e5d2ff6543906",
+      "ref": "master"
+    },
+    "i-arrange": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "80c48b09f90ff99ca0992474a81883bac679403edbdd6ef83a01645a5a4a31dd",
+      "ref": "master"
+    },
+    "i-audit": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "61f112c34c7f9db0908e9727fe0d9d22127e505fa3d2f8edfb692978d24fa33d",
+      "ref": "master"
+    },
+    "i-bolder": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "a896682a067f08c0d304043ee3db4c5b45e68fd83e99c2104a039693ea97b467",
+      "ref": "master"
+    },
+    "i-clarify": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "e304d91e8262ebbbfbbbac1f40b2227d37bef7948cc9d2dcd849a5825e44b129",
+      "ref": "master"
+    },
+    "i-colorize": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "8e0fbb5d1ff63671e09edd4acfa99b51a433b374b364c8e8dbc8406e3aa8e7f8",
+      "ref": "master"
+    },
+    "i-critique": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "edaae4361419f9567d687e579575374457d28cea848c3d2285a716af2169b25c",
+      "ref": "master"
+    },
+    "i-delight": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "694f4790a6fc4adca3aff60e0bf387155616d6dc0389f4a7a4675daca5fe834e",
+      "ref": "master"
+    },
+    "i-distill": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "6576d912066139109db44ba44f739b8c786684fc4b2a1b198f860bfc0783e436",
+      "ref": "master"
+    },
+    "i-extract": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "0b008b95fc4a4d8f422f37a5bfe176544c4a15555a93b6252d8c86b15bb674fd",
+      "ref": "master"
+    },
+    "i-harden": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "bb71b9d705dc7691e7aa3862f3489f24aef58d3cb5dbab1ff678f657214d7511",
+      "ref": "master"
+    },
+    "i-impeccable": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "9af5ad670021352c2d9777c8b5d1aabc6542f39c19890c87d411cfdada280f16",
+      "ref": "master"
+    },
+    "i-normalize": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "4356cf6ba233d4f981f5d2835f24cb2f8057de62f8f8e441a562b9f0887d0c12",
+      "ref": "master"
+    },
+    "i-onboard": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "43f73b6a1be3266076b252126fe72a1fc0cd3a2c6e989042c7c386b2e51ee230",
+      "ref": "master"
+    },
+    "i-optimize": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "e612c0e774f23393ecbe15d63ea7cc72fdeb8cdcc04d931b3d64473610d87007",
+      "ref": "master"
+    },
+    "i-overdrive": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "bc47c624b11fd40df0666da6c57007ae3a89d76b96f69452707accf67fce0973",
+      "ref": "master"
+    },
+    "i-polish": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "0c374212d1751818d2e557a1a9c2f56d63bdfec5115b76423c16a3ff20ffc01d",
+      "ref": "master"
+    },
+    "i-quieter": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "6ea0129941d4d9e8a4023d9ec00243a32ddc7e554f8b783c6ff8b0ed089a8d7e",
+      "ref": "master"
+    },
+    "i-shape": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "13b6ffb4db9ba9c53d4d618c3f8114ca5b05e11e8bc114e82bc853dae179c2ea",
+      "ref": "master"
+    },
+    "i-typeset": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "427c90e9ee4d8cfa64e3b10259db2bf4040323f017fa8aae2aa1a02a8bfe7b4c",
+      "ref": "master"
+    },
+    "justfile": {
+      "source": "iloveitaly/ai-skills",
+      "sourceType": "github",
+      "computedHash": "ad4231ffae0ccb48e73494b818c5dd840832c8f55b637ab277b4241f32f8c82e"
+    },
+    "ruff": {
+      "source": "astral-sh/claude-code-plugins",
+      "sourceType": "github",
+      "computedHash": "905f1c2b66e722ab534d7cbeceafb6ee37d32e3bfe51f3e68c661c51eb19a776",
+      "ref": "main"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "b122f4d1e91aa1d83027e050b5b37c3156203ee85458d7b1360bc48167c9e02a",
+      "ref": "main"
+    },
+    "systematic-debugging": {
+      "source": "ChrisWiles/claude-code-showcase",
+      "sourceType": "github",
+      "computedHash": "ae0a3468c67957835ebd0cdad40957c8d62ce75ae7ae6de84e7159499080fef2",
+      "ref": "main"
+    },
+    "uv": {
+      "source": "astral-sh/claude-code-plugins",
+      "sourceType": "github",
+      "computedHash": "b1ca9e9826d906f6ee6ea172da50018ec13bb622ac9ba7204bda8b10e7fc8d0a",
+      "ref": "main"
+    },
+    "value-realization": {
+      "source": "Done-0/value-realization",
+      "sourceType": "github",
+      "computedHash": "e80c4d88bbad86806ffb9ed03d588f1c316ea8a8de1429d051ed9a354539aba7"
+    }
+  }
+}

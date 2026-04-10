@@ -1,7 +1,14 @@
 ---
 name: i-onboard
-description: Design or improve onboarding flows, empty states, and first-time user experiences. Helps users get started successfully and understand value quickly.
-argument-hint: [TARGET=<value>]
+description: Designs and improves onboarding flows, empty states, and first-run experiences to help users reach value quickly. Use when the user mentions onboarding, first-time users, empty states, activation, getting started, or new user flows.
+user-invocable: true
+argument-hint: "[target]"
+---
+
+## MANDATORY PREPARATION
+
+Invoke /impeccable — it contains design principles, anti-patterns, and the **Context Gathering Protocol**. Follow the protocol before proceeding — if no design context exists yet, you MUST run /impeccable teach first. Additionally gather: the "aha moment" you want users to reach, and users' experience level.
+
 ---
 
 Create or improve onboarding experiences that help users understand, adopt, and succeed with the product quickly.
