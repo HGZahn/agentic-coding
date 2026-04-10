@@ -47,7 +47,7 @@ What it does:
 Also run this inside the target project directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/scripts/setup-own-repo.sh | bash
+curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh| bash
 ```
 
 ## Notes
