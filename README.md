@@ -1,73 +1,55 @@
 # Agentic Coding
 
-Curated `.agents` configuration and skills source for personal/team bootstrap with `npx skills`.
+`agentic-coding` is a curated `.agents` configuration and skills source for coding assistants.
 
-## Get Started
+The workflow is intentionally simple:
+- **Command A:** update this repository itself (including Impeccable `i-*` skills and lock file).
+- **Command B:** install/update `.agents` in any other project from this repository.
 
-### Use these skills in your own repo (recommended)
+## Requirements
 
-1. Copy the lock file into your repo:
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/skills-lock.json -o skills-lock.json
-   ```
-2. Install all locked skills:
-   ```bash
-   npx -y skills experimental_install -y
-   ```
+- `git`
+- `curl`
+- `node` + `npx`
+- internet access (for upstream skill sources and GitHub downloads)
 
-This installs the curated set (including `i-*` skills) into your repo’s `.agents/skills/`.
+## Command A: Update This `agentic-coding` Repo
 
-### Setup `.agents` scaffold in your own repo
-
-If you also want commands/settings/rules/hooks from this repo:
+Run from the root of this repository:
 
 ```bash
-git clone --depth 1 https://github.com/HGZahn/agentic-coding.git /tmp/agentic-coding
-cp -R /tmp/agentic-coding/.agents ./
-cp /tmp/agentic-coding/AGENTS.md ./AGENTS.md
-cp /tmp/agentic-coding/skills-lock.json ./skills-lock.json
-npx -y skills experimental_install -y
+./scripts/update-agentic-coding.sh
 ```
 
-### Install directly from this repo source
+What it does:
+- refreshes curated upstream skills (`agent-browser`, `justfile`, `value-realization`, `skill-creator`, `ruff`, `uv`, `systematic-debugging`)
+- refreshes all skills from `pbakaus/impeccable`
+- rewrites Impeccable skill names to local `i-*` naming
+- removes replaced local legacy names (`i-frontend-design`, `i-teach-impeccable`)
+- rebuilds `skills-lock.json` from current `.agents/skills` + `skills.sources.json`
+
+## Command B: Install/Update `.agents` In Another Repo
+
+Run this **inside the target project directory**:
 
 ```bash
-npx -y skills add HGZahn/agentic-coding --skill '*' --agent codex -y
+./scripts/setup-own-repo.sh
 ```
 
-Use this when you want the latest skills from this repository without using the lock file.
+What it does:
+- downloads `HGZahn/agentic-coding`
+- replaces local `.agents/` in the current working directory
+- copies `AGENTS.md` and `skills-lock.json`
+- runs `npx -y skills experimental_install -y` in the current project
 
-## Maintainer Workflow
+### Remote one-liner (`curl | bash`)
 
-### Rebuild curated lock
-
-After changing anything under `.agents/skills/` or `skills.sources.json`:
+Also run this inside the target project directory:
 
 ```bash
-./scripts/rebuild-skills-lock.sh
+curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/scripts/setup-own-repo.sh | bash
 ```
 
-### Reinstall from lock locally
+## Notes
 
-```bash
-./scripts/bootstrap-skills.sh
-```
-
-## Structure
-
-```text
-agentic-coding/
-├── .agents/
-│   ├── settings.json
-│   ├── commands/
-│   ├── skills/
-│   ├── agents/
-│   ├── hooks/
-│   └── rules/
-├── scripts/
-│   ├── bootstrap-skills.sh
-│   └── rebuild-skills-lock.sh
-├── skills.sources.json
-├── skills-lock.json
-└── AGENTS.md
-```
+- Command B is destructive for `.agents/` in the target repo (it replaces it).

@@ -10,7 +10,7 @@ This file provides guidance to coding agents when working in this repository.
 
 ### Single Source of Truth Pattern
 
-All shared configurations are defined in `.agents/` (canonical directory) and exposed to Claude via folder symlinks:
+All shared configurations are defined in `.agents/` (canonical directory):
 
 ```
 .agents/          # Canonical configuration source (edit here)
@@ -19,19 +19,10 @@ All shared configurations are defined in `.agents/` (canonical directory) and ex
 ├── commands/     # Custom slash commands
 ├── hooks/        # Hook scripts
 ├── rules/        # Rules for LLM behavior
-├── skills/       # Reusable skills
-└── workflows -> commands  # Compatibility alias
-
-.claude/          # Claude compatibility directory
-├── agents -> ../.agents/agents
-├── commands -> ../.agents/commands
-├── hooks -> ../.agents/hooks
-├── rules -> ../.agents/rules
-├── skills -> ../.agents/skills
-└── settings.json # Claude-specific settings overrides
+└── skills/       # Reusable skills
 ```
 
-**Key principle**: `.agents/` is the gold standard for shared config. `.claude/settings.json` is the only Claude-local override file.
+**Key principle**: `.agents/` is the gold standard for shared config.
 
 ## Configuration Structure
 
@@ -101,7 +92,7 @@ Skills may include optional subdirectories:
 
 To create a new skill, use the `skill-creator` skill or run:
 ```bash
-.agents/skills/skill-creator/scripts/init_skill.py <name> --path .agents/skills/
+npx -y skills init <name>
 ```
 
 ## Settings
