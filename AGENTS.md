@@ -1,103 +1,65 @@
 # AGENTS.md
 
-This file provides guidance to coding agents when working in this repository.
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
-## Project Overview
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-**Agentic Coding** is a configuration framework for LLM coding assistants. This is not an application with source code; it is a configuration repository that serves as a single source of truth for managing LLM agent settings across multiple platforms.
+## 1. Think Before Coding
 
-## Architecture
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
 
-### Single Source of Truth Pattern
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
 
-All shared configurations are defined in `.agents/` (canonical directory):
+## 2. Simplicity First
 
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
 ```
-.agents/          # Canonical configuration source (edit here)
-├── settings.json # Core settings with enabled plugins
-├── agents/       # Agent definitions
-├── commands/     # Custom slash commands
-├── hooks/        # Hook scripts
-├── rules/        # Rules for LLM behavior
-└── skills/       # Reusable skills
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
 ```
 
-**Key principle**: `.agents/` is the gold standard for shared config.
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## Configuration Structure
-
-### Directory Purposes
-
-- **`agents/`**: Define custom agent behaviors and specialized workflows
-- **`commands/`**: Custom slash commands that expand to prompts
-- **`rules/`**: Behavior guidelines and constraints for LLM agents
-- **`skills/`**: Reusable capabilities that can be invoked across different contexts
-- **`hooks/`**: Lifecycle and automation scripts
-
-## Available Commands
-
-Commands are invoked with `/command-name` in compatible tools:
-
-| Command | Description |
-|---------|-------------|
-| `/ai-refactor` | Review codebase against LLM/AI coding principles, output findings to FINDINGS.md |
-| `/commit-push [msg]` | Git commit and push with safety checks (secrets, broken templates) |
-| `/interview-me [plan]` | Interview about a plan file to refine specs (uses Opus) |
-
-## Available Skills
-
-Skills are invoked with the Skill tool when relevant context is detected:
-
-| Skill | Purpose |
-|-------|---------|
-| `agent-browser` | Automates browser interactions for testing and data extraction |
-| `coding-guidelines` | AI-first coding principles for LLM-maintained code |
-| `justfile` | Author and debug `justfile` task automation |
-| `value-realization` | Analyze product ideas for discoverable user value |
-| `systematic-debugging` | Four-phase debugging: root cause first, then fix |
-| `skill-creator` | Guide for creating new skills with init_skill.py |
-| `ruff` | Python linter/formatter usage patterns |
-| `uv` | Python package/project manager workflows |
-
-## Creating New Content
-
-### Command Format
-
-Commands are `.md` files in `.agents/commands/` with YAML frontmatter:
-
-```yaml
 ---
-description: Human-readable description (required)
-argument-hint: [optional-args]        # Shown in command list
-allowed-tools: Bash(git:*)            # Tool restrictions
-model: haiku                          # Model override
----
-```
 
-### Skill Format
-
-Skills are directories in `.agents/skills/` containing `SKILL.md`:
-
-```yaml
----
-name: skill-name                      # Required
-description: When to use and what it provides  # Required
----
-```
-
-Skills may include optional subdirectories:
-- `scripts/` - Executable code for deterministic tasks
-- `references/` - Documentation loaded as needed
-- `assets/` - Files used in output (templates, images)
-
-To create a new skill, use the `skill-creator` skill or run:
-```bash
-npx -y skills init <name>
-```
-
-## Settings
-
-**`.agents/settings.json`** controls plugin enablement.
-
-Currently enabled plugins:
-- `ralph-loop@claude-plugins-official`: Ralph Loop functionality
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
