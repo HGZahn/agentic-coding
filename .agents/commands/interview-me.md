@@ -1,18 +1,12 @@
 ---
-description: Interview me about the plan
-argument-hint: [plan]
-model: opus
+name: Interview Me
+description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
 ---
 
-Read $1 and interview me using AskUserQuestion to surface hidden assumptions and gaps.
-
-Probe across all dimensions:
-- **Product**: Who's the user? What's the core value? What can we cut?
-- **UX/UI**: How does it feel? What's confusing? First-time vs power user?
-- **Business**: Pricing impact? Competitive angle? Support burden?
-- **Technical**: Feasibility? Dependencies? What breaks at scale?
-- **Edge cases**: Empty states, errors, limits, abuse vectors
-
-Ask 1-2 sharp questions per round. Skip the obvious. Dig into hand-wavy answers.
-
 When gaps are addressed, update the file with a refined spec.
+
+Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+
+Ask the questions one at a time.
+
+If a question can be answered by exploring the codebase, explore the codebase instead.
