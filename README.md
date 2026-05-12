@@ -1,55 +1,49 @@
 # Agentic Coding
 
-`agentic-coding` is a curated `.agents` configuration and skills source for coding assistants.
+This repo keeps a shared `.agents` setup and `AGENTS.md` for coding assistants.
 
-The workflow is intentionally simple:
-- **Command A:** update this repository itself (including Impeccable `i-*` skills and lock file).
-- **Command B:** install/update `.agents` in any other project from this repository.
+## Get Started
 
-## Requirements
+Run this from inside the repo you want to configure:
 
-- `git`
-- `curl`
-- `node` + `npx`
-- `unzip`
-- internet access (for upstream skill sources and GitHub downloads)
+```bash
+curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
+```
 
-## Command A: Update This `agentic-coding` Repo
+What it does:
+- downloads this repository
+- copies `.agents/`, `AGENTS.md`, and `skills-lock.json`
+- asks before replacing anything that already exists
+- runs `npx -y skills experimental_install -y`
 
-Run from the root of this repository:
+If you already have a `.agents/` directory or an `AGENTS.md` file, the script will ask before overwriting them.
+
+## Update This Repo
 
 ```bash
 just update
 ```
 
 What it does:
-- refreshes curated upstream skills (`agent-browser`, `justfile`, `value-realization`, `skill-creator`, `ruff`, `uv`, `systematic-debugging`)
-- downloads the pre-prefixed Impeccable Codex bundle from `https://impeccable.style/api/download/bundle/universal-prefixed`
-- refreshes mapped local Impeccable `i-*` skills from that bundle
-- rebuilds `skills-lock.json` from current `.agents/skills` + `skills.sources.json`
+- refreshes the upstream skills listed in `skills.sources.json`
+- downloads the Impeccable `i-*` bundle
+- rebuilds `skills-lock.json` from the current `.agents/skills` tree
 
-## Command B: Install/Update `.agents` In Another Repo
+## Files To Know
 
-Run this **inside the target project directory**:
+- `skills.sources.json` lists where each skill comes from
+- `skills-lock.json` records the current contents of each skill directory
+- `get-started.sh` installs this repo into another project
 
-```bash
-get-started.sh
-```
+## Requirements
 
-What it does:
-- downloads `HGZahn/agentic-coding`
-- replaces local `.agents/` in the current working directory
-- copies `AGENTS.md` and `skills-lock.json`
-- runs `npx -y skills experimental_install -y` in the current project
+- `git`
+- `curl`
+- `node` and `npx`
+- `unzip`
+- internet access for skill downloads
 
-### Remote one-liner (`curl | bash`)
+## Troubleshooting
 
-Also run this inside the target project directory:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
-```
-
-## Notes
-
-- Command B is destructive for `.agents/` in the target repo (it replaces it).
+- `just: command not found` - install `just`
+- `npx: command not found` - install Node.js
