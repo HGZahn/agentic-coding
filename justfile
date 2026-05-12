@@ -12,33 +12,6 @@ update:
     npx -y skills add https://github.com/astral-sh/claude-code-plugins/tree/main/plugins/astral/skills --skill ruff --skill uv --agent codex -y
     npx -y skills add https://github.com/ChrisWiles/claude-code-showcase/tree/main/.claude/skills/systematic-debugging --skill systematic-debugging --agent codex -y
 
-    echo "Refreshing Impeccable i-* skills from prefixed bundle..."
-    TMP_DIR="$(mktemp -d)"
-    cleanup() {
-    rm -rf "$TMP_DIR"
-    }
-    trap cleanup EXIT
-
-    BUNDLE_PATH="${TMP_DIR}/impeccable.bundle.zip"
-    BUNDLE_DIR="${TMP_DIR}/impeccable.bundle"
-    curl -fsSL "https://impeccable.style/api/download/bundle/universal-prefixed" -o "$BUNDLE_PATH"
-    unzip -q "$BUNDLE_PATH" -d "$BUNDLE_DIR"
-
-    mapfile -t impeccable_skills < <(
-    node -e "const s=require('./skills.sources.json').skills; for (const k of Object.keys(s).sort((a,b)=>a.localeCompare(b))) if (k.startsWith('i-')) console.log(k);"
-    )
-
-    for skill in "${impeccable_skills[@]}"; do
-    src="${BUNDLE_DIR}/.codex/skills/${skill}"
-    dst=".agents/skills/${skill}"
-    if [[ ! -d "$src" ]]; then
-        echo "Missing Impeccable skill in bundle: ${skill}" >&2
-        exit 1
-    fi
-    rm -rf "$dst"
-    cp -R "$src" "$dst"
-    done
-
     echo "Rebuilding skills-lock.json..."
     node <<'NODE'
     const fs = require('node:fs/promises');
