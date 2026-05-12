@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "5whys": {
+      "source": "neurofoo/agent-skills",
+      "sourceType": "github",
+      "computedHash": "f82515944b78fcd898eee09c9c6f8361ac3f4e7f8e5edcc09bb52e60e4933dbf",
+      "ref": "main"
+    },
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",

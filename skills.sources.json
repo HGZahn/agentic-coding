@@ -2,6 +2,7 @@
   "version": 1,
   "defaultSourceType": "github",
   "skills": {
+    "5whys": { "source": "neurofoo/agent-skills", "ref": "main" },
     "agent-browser": { "source": "vercel-labs/agent-browser" },
     "coding-guidelines": { "source": "HGZahn/agentic-coding", "ref": "master" },
     "i-adapt": { "source": "HGZahn/agentic-coding", "ref": "master" },
