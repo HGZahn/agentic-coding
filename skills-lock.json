@@ -10,7 +10,7 @@
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
-      "computedHash": "fbf66fd85ccad0d42a287d346503782d7a97848e67595d7e8c840434d572ee81"
+      "computedHash": "edad4d958bc4baf821e3391bb9889a03a8bbc0e4d7f54ee4a5f30837654fed83"
     },
     "coding-guidelines": {
       "source": "HGZahn/agentic-coding",
@@ -164,7 +164,7 @@
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",
-      "computedHash": "b122f4d1e91aa1d83027e050b5b37c3156203ee85458d7b1360bc48167c9e02a",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2",
       "ref": "main"
     },
     "systematic-debugging": {
@@ -182,7 +182,7 @@
     "value-realization": {
       "source": "Done-0/value-realization",
       "sourceType": "github",
-      "computedHash": "e80c4d88bbad86806ffb9ed03d588f1c316ea8a8de1429d051ed9a354539aba7"
+      "computedHash": "96d7c92f350824c01fd3241a97d8c4c140e8d966e753f45c234a183b5a108950"
     }
   }
 }
