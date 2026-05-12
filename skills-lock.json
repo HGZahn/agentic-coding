@@ -149,6 +149,12 @@
       "sourceType": "github",
       "computedHash": "ad4231ffae0ccb48e73494b818c5dd840832c8f55b637ab277b4241f32f8c82e"
     },
+    "repo-skill-installer": {
+      "source": "HGZahn/agentic-coding",
+      "sourceType": "github",
+      "computedHash": "1e9f076fbf77de46cc5ecf39ef8cba54187cd601f079ff67d3c0880b8af0a057",
+      "ref": "master"
+    },
     "ruff": {
       "source": "astral-sh/claude-code-plugins",
       "sourceType": "github",

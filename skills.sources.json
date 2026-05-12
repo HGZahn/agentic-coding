@@ -27,6 +27,7 @@
     "i-shape": { "source": "HGZahn/agentic-coding", "ref": "master" },
     "i-typeset": { "source": "HGZahn/agentic-coding", "ref": "master" },
     "justfile": { "source": "iloveitaly/ai-skills" },
+    "repo-skill-installer": { "source": "HGZahn/agentic-coding", "ref": "master" },
     "ruff": { "source": "astral-sh/claude-code-plugins", "ref": "main" },
     "skill-creator": { "source": "anthropics/skills", "ref": "main" },
     "systematic-debugging": { "source": "ChrisWiles/claude-code-showcase", "ref": "main" },
