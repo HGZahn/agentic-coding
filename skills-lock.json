@@ -3,58 +3,62 @@
   "skills": {
     "5whys": {
       "source": "neurofoo/agent-skills",
+      "ref": "main",
       "sourceType": "github",
-      "computedHash": "f82515944b78fcd898eee09c9c6f8361ac3f4e7f8e5edcc09bb52e60e4933dbf",
-      "ref": "main"
+      "skillPath": "5whys/SKILL.md",
+      "computedHash": "f82515944b78fcd898eee09c9c6f8361ac3f4e7f8e5edcc09bb52e60e4933dbf"
     },
     "agent-browser": {
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
-      "computedHash": "edad4d958bc4baf821e3391bb9889a03a8bbc0e4d7f54ee4a5f30837654fed83"
+      "skillPath": "skills/agent-browser/SKILL.md",
+      "computedHash": "228f87d57035100d9dc6efcfc05aafd4b6e3962adacaa04b8217ab2fadb15dc8"
     },
     "justfile": {
       "source": "iloveitaly/ai-skills",
       "sourceType": "github",
+      "skillPath": "skills/justfile/SKILL.md",
       "computedHash": "ad4231ffae0ccb48e73494b818c5dd840832c8f55b637ab277b4241f32f8c82e"
     },
     "ponytail": {
       "source": "DietrichGebert/ponytail",
+      "ref": "main",
       "sourceType": "github",
-      "computedHash": "55e888f9d81f873068de13d44f4f963595aa2c2c6bb0f9024160bea79f756618",
-      "ref": "main"
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "55e888f9d81f873068de13d44f4f963595aa2c2c6bb0f9024160bea79f756618"
     },
     "repo-skill-installer": {
-      "source": "HGZahn/agentic-coding",
+      "source": "https://github.com/HGZahn/agentic-coding/tree/master/skills/repo-skill-installer",
       "sourceType": "github",
-      "computedHash": "1e9f076fbf77de46cc5ecf39ef8cba54187cd601f079ff67d3c0880b8af0a057",
+      "computedHash": "5325c95d0eeac1c55db2e8f76f9ec2b398dcb0da23d06ab4df85c8248116d814",
       "ref": "master"
     },
     "ruff": {
-      "source": "astral-sh/claude-code-plugins",
+      "source": "https://github.com/astral-sh/claude-code-plugins/tree/main/plugins/astral/skills",
       "sourceType": "github",
       "computedHash": "905f1c2b66e722ab534d7cbeceafb6ee37d32e3bfe51f3e68c661c51eb19a776",
       "ref": "main"
     },
     "skill-creator": {
-      "source": "anthropics/skills",
+      "source": "https://github.com/anthropics/skills/tree/main/skills/skill-creator",
       "sourceType": "github",
       "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2",
       "ref": "main"
     },
     "systematic-debugging": {
-      "source": "ChrisWiles/claude-code-showcase",
+      "source": "https://github.com/ChrisWiles/claude-code-showcase/tree/main/.claude/skills/systematic-debugging",
       "sourceType": "github",
       "computedHash": "ae0a3468c67957835ebd0cdad40957c8d62ce75ae7ae6de84e7159499080fef2",
       "ref": "main"
     },
     "uv": {
-      "source": "astral-sh/claude-code-plugins",
+      "source": "https://github.com/astral-sh/claude-code-plugins/tree/main/plugins/astral/skills",
       "sourceType": "github",
       "computedHash": "b1ca9e9826d906f6ee6ea172da50018ec13bb622ac9ba7204bda8b10e7fc8d0a",
       "ref": "main"
     },
     "value-realization": {
-      "source": "Done-0/value-realization",
+      "source": "https://github.com/Done-0/value-realization",
       "sourceType": "github",
       "computedHash": "96d7c92f350824c01fd3241a97d8c4c140e8d966e753f45c234a183b5a108950"
     }

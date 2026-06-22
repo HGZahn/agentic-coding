@@ -40,7 +40,7 @@ confirm_replace() {
   [[ "$answer" == "y" || "$answer" == "Y" ]]
 }
 
-copy_dir_with_prompt() {
+copy_with_prompt() {
   local source_path="$1"
   local target_path="$2"
   local target_name="$3"
@@ -58,23 +58,6 @@ copy_dir_with_prompt() {
   echo "Installed ${target_name}."
 }
 
-copy_file_with_prompt() {
-  local source_path="$1"
-  local target_path="$2"
-  local target_name="$3"
-
-  if [[ -e "$target_path" ]]; then
-    if ! confirm_replace "$target_name"; then
-      echo "Skipped ${target_name}."
-      return 0
-    fi
-    echo "Replacing ${target_name}."
-  fi
-
-  cp "$source_path" "$target_path"
-  echo "Installed ${target_name}."
-}
-
 echo "Downloading shared agent config from ${REPO_OWNER_REPO}@${REPO_REF}..."
 curl -fsSL "https://codeload.github.com/${REPO_OWNER_REPO}/tar.gz/${REPO_REF}" -o "$ARCHIVE_PATH"
 
@@ -88,15 +71,16 @@ if [[ ! -d "${SRC_DIR}/.agents" ]]; then
 fi
 
 echo "Installing shared files into ${TARGET_DIR}..."
-copy_dir_with_prompt "${SRC_DIR}/.agents" "${TARGET_DIR}/.agents" ".agents"
-copy_file_with_prompt "${SRC_DIR}/AGENTS.md" "${TARGET_DIR}/AGENTS.md" "AGENTS.md"
-copy_file_with_prompt "${SRC_DIR}/skills-lock.json" "${TARGET_DIR}/skills-lock.json" "skills-lock.json"
+copy_with_prompt "${SRC_DIR}/.agents" "${TARGET_DIR}/.agents" ".agents"
+copy_with_prompt "${SRC_DIR}/AGENTS.md" "${TARGET_DIR}/AGENTS.md" "AGENTS.md"
+copy_with_prompt "${SRC_DIR}/skills-lock.json" "${TARGET_DIR}/skills-lock.json" "skills-lock.json"
 
 if [[ -f "${TARGET_DIR}/skills-lock.json" ]]; then
   echo "Installing/updating locked skills in ${TARGET_DIR}..."
   (
     cd "$TARGET_DIR"
     npx -y skills experimental_install -y
+    npx -y skills experimental_sync --agent codex opencode -y
   )
 else
   echo "No skills-lock.json found in ${TARGET_DIR}; skipping skill installation."

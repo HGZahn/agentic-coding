@@ -14,7 +14,8 @@ What it does:
 - downloads this repository
 - copies `.agents/`, `AGENTS.md`, and `skills-lock.json`
 - asks before replacing anything that already exists
-- runs `npx -y skills experimental_install -y`
+- installs locked third-party and repo-hosted skills
+- syncs skills for Codex and opencode
 
 If you already have a `.agents/` directory or an `AGENTS.md` file, the script will ask before overwriting them.
 
@@ -25,14 +26,15 @@ just update
 ```
 
 What it does:
-- refreshes the upstream skills listed in `skills.sources.json`
-- downloads the Impeccable `i-*` bundle
-- rebuilds `skills-lock.json` from the current `.agents/skills` tree
+- installs/updates the skills listed in `skills-lock.json`
+- rebuilds `skills-lock.json` hashes from the current `.agents/skills` tree
 
 ## Files To Know
 
-- `skills.sources.json` lists where each skill comes from
-- `skills-lock.json` records the current contents of each skill directory
+- `.agents/commands/` contains repo-hosted slash commands
+- `skills/` contains manually hosted repo-owned skills
+- `.agents/skills/` is ignored installer output
+- `skills-lock.json` records all skill sources and content hashes
 - `get-started.sh` installs this repo into another project
 
 ## Requirements
