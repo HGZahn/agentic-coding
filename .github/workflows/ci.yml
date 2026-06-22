@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.actor == 'HGZahn'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install just
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y just
+
+      - name: Run tests
+        run: just test
