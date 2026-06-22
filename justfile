@@ -1,3 +1,22 @@
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    tmpdir="$(mktemp -d)"
+    cleanup() {
+        rm -rf "$tmpdir"
+    }
+    trap cleanup EXIT
+
+    cd "$tmpdir"
+    curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
+
+    test -d .agents
+    test -f AGENTS.md
+    test -f skills-lock.json
+
+    echo "All tests passed."
+
 update:
     #!/usr/bin/env bash
     set -euo pipefail
