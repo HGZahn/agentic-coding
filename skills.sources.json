@@ -4,7 +4,6 @@
   "skills": {
     "5whys": { "source": "neurofoo/agent-skills", "ref": "main" },
     "agent-browser": { "source": "vercel-labs/agent-browser" },
-    "coding-guidelines": { "source": "HGZahn/agentic-coding", "ref": "master" },
     "justfile": { "source": "iloveitaly/ai-skills" },
     "ponytail": { "source": "DietrichGebert/ponytail", "ref": "main" },
     "repo-skill-installer": { "source": "HGZahn/agentic-coding", "ref": "master" },
