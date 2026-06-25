@@ -3,7 +3,6 @@
   "skills": {
     "5whys": {
       "source": "neurofoo/agent-skills",
-      "ref": "main",
       "sourceType": "github",
       "skillPath": "5whys/SKILL.md",
       "computedHash": "f82515944b78fcd898eee09c9c6f8361ac3f4e7f8e5edcc09bb52e60e4933dbf"
@@ -12,7 +11,7 @@
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "computedHash": "228f87d57035100d9dc6efcfc05aafd4b6e3962adacaa04b8217ab2fadb15dc8"
+      "computedHash": "edad4d958bc4baf821e3391bb9889a03a8bbc0e4d7f54ee4a5f30837654fed83"
     },
     "justfile": {
       "source": "iloveitaly/ai-skills",

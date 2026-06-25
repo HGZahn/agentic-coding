@@ -24,16 +24,17 @@ update:
     cd "{{ justfile_directory() }}"
 
     echo "Installing/updating locked skills..."
-    node <<'NODE' | while IFS= read -r line; do
+    while IFS= read -r line; do
     set -- $line
     npx -y skills add "$2" --skill "$1" --agent codex opencode -y
-    done
+    done < <(node <<'NODE'
     const fs = require('node:fs');
     const lock = JSON.parse(fs.readFileSync('skills-lock.json', 'utf8'));
     for (const [name, entry] of Object.entries(lock.skills || {})) {
     console.log(`${name} ${entry.source}`);
     }
     NODE
+    )
 
     echo "Recomputing skills-lock.json hashes..."
     node <<'NODE'
