@@ -18,7 +18,7 @@
       "ref": "master",
       "sourceType": "github",
       "skillPath": "skills/commit-push/SKILL.md",
-      "computedHash": "863ed7cd5f130333b3ea5ca7248d2e5f37dab263ef7e4309f70ff51805a7820c"
+      "computedHash": "ee2674a13e8eaafcc4d500c5b2fcaa6d6ab48e2e8647554815592159040ff262"
     },
     "grill-me": {
       "source": "mattpocock/skills",
@@ -52,14 +52,14 @@
       "ref": "master",
       "sourceType": "github",
       "skillPath": "skills/ponytail-audit/SKILL.md",
-      "computedHash": "bc56479d41d68821c455f64ec76b298751f3c47b712912da217af7b797fec21e"
+      "computedHash": "3c8df62eac0ca69a350d4f3da3a1fe847d6084ca3b089e270d9353780ec1cc85"
     },
     "ponytail-review": {
       "source": "HGZahn/agentic-coding",
       "ref": "master",
       "sourceType": "github",
       "skillPath": "skills/ponytail-review/SKILL.md",
-      "computedHash": "c061c7980184946b7134bc5898d5cd54d26c79fc480ba5612d961c2f61dc99a5"
+      "computedHash": "f2bfbb82d93c726fa8caa8450ff74c57520fae18b084429cdba70b85f108b8fb"
     },
     "repo-skill-installer": {
       "source": "HGZahn/agentic-coding",

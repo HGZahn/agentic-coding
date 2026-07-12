@@ -1,4 +1,5 @@
 ---
+name: commit-push
 description: Commit and push changes with a solid commit message
 argument-hint: [commit-message-optional]
 allowed-tools: Bash(git:*)
