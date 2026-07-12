@@ -13,6 +13,27 @@
       "skillPath": "skills/agent-browser/SKILL.md",
       "computedHash": "edad4d958bc4baf821e3391bb9889a03a8bbc0e4d7f54ee4a5f30837654fed83"
     },
+    "commit-push": {
+      "source": "HGZahn/agentic-coding",
+      "ref": "master",
+      "sourceType": "github",
+      "skillPath": "skills/commit-push/SKILL.md",
+      "computedHash": "863ed7cd5f130333b3ea5ca7248d2e5f37dab263ef7e4309f70ff51805a7820c"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "f321507f77702a54af1db66549ec1685fc625390d06c57d7949cdcda8eb1b5c7"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "8bf292143ca93b00276a0de0fc5f84f2381f4690c5b0d32e99fa283a072f392f"
+    },
     "justfile": {
       "source": "iloveitaly/ai-skills",
       "sourceType": "github",
@@ -25,6 +46,20 @@
       "sourceType": "github",
       "skillPath": "skills/ponytail/SKILL.md",
       "computedHash": "55e888f9d81f873068de13d44f4f963595aa2c2c6bb0f9024160bea79f756618"
+    },
+    "ponytail-audit": {
+      "source": "HGZahn/agentic-coding",
+      "ref": "master",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-audit/SKILL.md",
+      "computedHash": "bc56479d41d68821c455f64ec76b298751f3c47b712912da217af7b797fec21e"
+    },
+    "ponytail-review": {
+      "source": "HGZahn/agentic-coding",
+      "ref": "master",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail-review/SKILL.md",
+      "computedHash": "c061c7980184946b7134bc5898d5cd54d26c79fc480ba5612d961c2f61dc99a5"
     },
     "repo-skill-installer": {
       "source": "HGZahn/agentic-coding",
@@ -53,6 +88,27 @@
       "sourceType": "github",
       "skillPath": ".claude/skills/systematic-debugging/SKILL.md",
       "computedHash": "ae0a3468c67957835ebd0cdad40957c8d62ce75ae7ae6de84e7159499080fef2"
+    },
+    "tdd": {
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/tdd/SKILL.md",
+      "computedHash": "76a490fa622bade6abc73d7b9f0573ee736ff5b034af9c8db6bfe13486fbc3a1"
+    },
+    "to-issues": {
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-issues/SKILL.md",
+      "computedHash": "4e2a11d35f018490d42a79234432f779d7131b9920373ef24cfbc68229bfef6c"
+    },
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "computedHash": "5a733e19d825f22e83de52e68b8840c9fd2fa7501282277a122c1aa28a922059"
     },
     "uv": {
       "source": "astral-sh/claude-code-plugins",
