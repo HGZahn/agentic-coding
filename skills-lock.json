@@ -66,6 +66,13 @@
       "sourceType": "github",
       "skillPath": "SKILL.md",
       "computedHash": "96d7c92f350824c01fd3241a97d8c4c140e8d966e753f45c234a183b5a108950"
+    },
+    "worktrunk-workflows": {
+      "source": "HGZahn/agentic-coding",
+      "ref": "master",
+      "sourceType": "github",
+      "skillPath": "skills/worktrunk-workflows/SKILL.md",
+      "computedHash": "61c9f89a6e1d67430a4ca877e2a76de0bf81deaea235fe207df71303df9dfc79"
     }
   }
 }
