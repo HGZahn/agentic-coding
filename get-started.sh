@@ -58,13 +58,17 @@ copy_with_prompt() {
   echo "Installed ${target_name}."
 }
 
-echo "Downloading shared agent config from ${REPO_OWNER_REPO}@${REPO_REF}..."
-curl -fsSL "https://codeload.github.com/${REPO_OWNER_REPO}/tar.gz/${REPO_REF}" -o "$ARCHIVE_PATH"
+if [[ -n "${AGENTIC_CODING_SOURCE_DIR:-}" ]]; then
+  SRC_DIR="$(cd "$AGENTIC_CODING_SOURCE_DIR" && pwd)"
+else
+  echo "Downloading shared agent config from ${REPO_OWNER_REPO}@${REPO_REF}..."
+  curl -fsSL "https://codeload.github.com/${REPO_OWNER_REPO}/tar.gz/${REPO_REF}" -o "$ARCHIVE_PATH"
 
-TOP_DIR="$(tar -tzf "$ARCHIVE_PATH" | sed -n '1p' | cut -d/ -f1)"
-tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
+  TOP_DIR="$(tar -tzf "$ARCHIVE_PATH" | sed -n '1p' | cut -d/ -f1)"
+  tar -xzf "$ARCHIVE_PATH" -C "$TMP_DIR"
+  SRC_DIR="${TMP_DIR}/${TOP_DIR}"
+fi
 
-SRC_DIR="${TMP_DIR}/${TOP_DIR}"
 if [[ ! -d "${SRC_DIR}/.agents" ]]; then
   echo "Missing .agents in downloaded source: ${SRC_DIR}" >&2
   exit 1

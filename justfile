@@ -9,7 +9,7 @@ test:
     trap cleanup EXIT
 
     cd "$tmpdir"
-    curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
+    AGENTIC_CODING_SOURCE_DIR="{{ justfile_directory() }}" bash "{{ justfile_directory() }}/get-started.sh"
 
     test -d .agents
     test -f AGENTS.md
@@ -26,7 +26,7 @@ update:
     echo "Installing/updating locked skills..."
     while IFS= read -r line; do
     set -- $line
-    npx -y skills add "$2" --skill "$1" --agent codex opencode -y
+    npx -y skills add "$2" --skill "$1" --agent codex opencode -y </dev/null
     done < <(node <<'NODE'
     const fs = require('node:fs');
     const lock = JSON.parse(fs.readFileSync('skills-lock.json', 'utf8'));
