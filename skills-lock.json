@@ -11,7 +11,7 @@
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "computedHash": "b93b77d9a63143fcefa7d371c1fceba58f1f310ef76a5f2ad3d4d2077efa8c25"
+      "computedHash": "a674b7d81066e3cc471a7512ddb4ae724418cbfefa75cbb050b0dc430e4d57a0"
     },
     "grill-me": {
       "source": "mattpocock/skills",
@@ -25,7 +25,7 @@
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/i-have-adhd/SKILL.md",
-      "computedHash": "b6588e2164feefb5b2e413e1898412c304dc32fdf6e10ae456122751d71e34d6"
+      "computedHash": "b7a01828f58910ed69a5cad45a79fd618c68a339715df0d09a329eead19ef829"
     },
     "ponytail": {
       "source": "DietrichGebert/ponytail",
@@ -33,27 +33,6 @@
       "sourceType": "github",
       "skillPath": "skills/ponytail/SKILL.md",
       "computedHash": "210fa0831f649ce9f8a305f7b7c8cf2a0dd09ac4dd53067109941b96e7811d4e"
-    },
-    "ponytail-audit": {
-      "source": "HGZahn/agentic-coding",
-      "ref": "master",
-      "sourceType": "github",
-      "skillPath": ".pi/skills/ponytail-audit/SKILL.md",
-      "computedHash": "3c8df62eac0ca69a350d4f3da3a1fe847d6084ca3b089e270d9353780ec1cc85"
-    },
-    "ponytail-review": {
-      "source": "HGZahn/agentic-coding",
-      "ref": "master",
-      "sourceType": "github",
-      "skillPath": ".pi/skills/ponytail-review/SKILL.md",
-      "computedHash": "f2bfbb82d93c726fa8caa8450ff74c57520fae18b084429cdba70b85f108b8fb"
-    },
-    "repo-skill-installer": {
-      "source": "HGZahn/agentic-coding",
-      "ref": "master",
-      "sourceType": "github",
-      "skillPath": ".pi/skills/repo-skill-installer/SKILL.md",
-      "computedHash": "85746200479b45c29429f627ddd3ea3d95df769274f868e7ff33184b7a64d4fc"
     },
     "ruff": {
       "source": "astral-sh/claude-code-plugins",
@@ -87,7 +66,7 @@
       "source": "Done-0/value-realization",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "96d7c92f350824c01fd3241a97d8c4c140e8d966e753f45c234a183b5a108950"
+      "computedHash": "b50cd226992de92fab5bf490b9baf4701a2d7a4e8419a1c9b8cddf20da4aad1a"
     }
   }
 }

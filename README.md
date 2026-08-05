@@ -43,7 +43,10 @@ All skill payloads are committed under `.pi/skills` and work offline. `skills-lo
 
 Requirements: Bash and Node.js.
 
+Run `./menu.sh` to select a maintenance action interactively.
+
 ```bash
+npx skills update                # update installed skills
 node scripts/skills.mjs verify   # lock matches .pi/skills (hashes, frontmatter)
 node scripts/skills.mjs rehash   # recompute hashes after editing vendored skills
 bash scripts/test-install.sh     # fresh, decline, repeat, conflict installs
