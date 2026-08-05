@@ -16,11 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install just
-        run: |
-          set -euo pipefail
-          sudo apt-get update
-          sudo apt-get install -y just
+      - name: Verify skills lock and layout
+        run: node scripts/skills.mjs verify
 
-      - name: Run tests
-        run: just test
+      - name: Verify OpenCode symlink
+        run: |
+          test "$(readlink .opencode/skills)" = "../.pi/skills"
+          test -f .pi/extensions/plan-build-mode.ts
+          test -f .pi/settings.json
+          test -f skills-lock.json
+
+      - name: Validate installer syntax
+        run: bash -n get-started.sh
+
+      - name: Test installer (fresh, repeat, conflict)
+        run: bash scripts/test-install.sh

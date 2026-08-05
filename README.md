@@ -4,28 +4,22 @@ A pi-first coding setup with integrated skills, plan/build mode, and strict Open
 
 `.pi/` is the source of truth. OpenCode reads the same skills through `.opencode/skills -> ../.pi/skills`; it never maintains a separate copy.
 
-## Get started
+## Install
 
-Run this inside the project you want to configure:
+Run inside the project you want to configure:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
 ```
 
-The installer adds:
+The installer asks two questions:
 
-```text
-.pi/
-├── extensions/plan-build-mode.ts
-├── settings.json
-└── skills/
-.opencode/skills -> ../.pi/skills
-AGENTS.md
-```
+1. **Install pi config?** — adds `.pi/settings.json`, `.pi/extensions/`, and `AGENTS.md`. Differing managed files are backed up with a `.bak.<timestamp>` suffix.
+2. **Install skills?** — adds `.pi/skills` and `skills-lock.json`, and links `.opencode/skills -> ../.pi/skills`.
 
-It asks before replacing differing managed pi files. If `.opencode/skills` already exists and is not the canonical symlink, installation stops without modifying it.
+If `.opencode/skills` already exists and is not the canonical symlink, installation stops without modifying anything.
 
-Start pi and approve project trust when prompted:
+Then start pi and approve project trust:
 
 ```bash
 pi
@@ -33,75 +27,32 @@ pi
 
 ## Plan and build modes
 
-The included pi extension provides:
+The included extension provides:
 
 - `/plan` — inspect and plan without editing project files
 - `/build` — restore full file editing
-- `Shift+Tab` — toggle modes when the recommended keybindings are installed
-- a persistent mode indicator in the pi footer
+- `Shift+Tab` — toggle modes
 
-The installer can merge the recommended global pi bindings into `~/.pi/agent/keybindings.json`:
-
-- `Shift+Tab` toggles plan/build through the extension
-- `Ctrl+T` cycles thinking level
-
-Existing global keybindings are preserved and backed up before a change.
-
-## Installer options
-
-```text
---yes             replace conflicting managed files without prompting
---force           same as --yes
---dry-run         show changes without writing
---no-opencode     skip the OpenCode symlink
---keybindings     install recommended global pi keybindings
---no-keybindings  skip the keybinding prompt
-```
-
-For automation:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh \
-  | bash -s -- --yes --no-keybindings
-```
-
-Environment overrides:
-
-- `REPO_OWNER_REPO` — source repository, default `HGZahn/agentic-coding`
-- `REPO_REF` — source branch/tag/commit, default `master`
-- `AGENTIC_CODING_SOURCE_DIR` — use a local checkout instead of downloading
+Existing global keybindings are never modified by the installer.
 
 ## Integrated skills
 
-All skill payloads are committed under `.pi/skills` and work offline after the repository archive is downloaded. `skills-lock.json` records their upstream source, path, ref, and content hash.
-
-Pi discovers them natively from `.pi/skills`. OpenCode sees exactly the same files through the symlink.
+All skill payloads are committed under `.pi/skills` and work offline. `skills-lock.json` records each skill's upstream source, ref, path, and content hash — the harness-neutral provenance record. Pi discovers skills from `.pi/skills`; OpenCode sees the same files through the symlink.
 
 ## Maintaining this repository
 
-Requirements: Bash, Git, Node.js, and [just](https://github.com/casey/just).
+Requirements: Bash and Node.js.
 
 ```bash
-just verify                    # validate layout, frontmatter, and hashes
-just test                      # exercise fresh, repeated, conflict, and dry-run installs
-just update-skill ponytail     # refresh one upstream skill
-just update                    # refresh every third-party skill
-just install /path/to/project  # install from this checkout
+node scripts/skills.mjs verify   # lock matches .pi/skills (hashes, frontmatter)
+node scripts/skills.mjs rehash   # recompute hashes after editing vendored skills
+bash scripts/test-install.sh     # fresh, decline, repeat, conflict installs
 ```
 
-Repository-owned skills are edited directly in `.pi/skills`. After editing one, run:
+Repository-owned skills are edited directly in `.pi/skills`, then `rehash` and `verify`.
 
-```bash
-node scripts/skills.mjs rehash
-just verify
-```
-
-## Safety and recovery
+## Safety
 
 - Project credentials, sessions, models, and trust state are never copied.
-- Unrelated files inside `.pi/extensions` and `.opencode` are preserved.
-- Replaced managed files receive a timestamped `.bak.*` sibling.
-- An existing noncanonical `.opencode/skills` is never imported, backed up, or deleted; resolve it explicitly and rerun.
-- Use `--dry-run` to preview an installation.
-
-To uninstall, remove the installed managed files and the `.opencode/skills` symlink. Restore a desired `.bak.*` file by renaming it to its original path.
+- A noncanonical `.opencode/skills` is never imported, backed up, or deleted; resolve it explicitly and rerun.
+- To uninstall, remove the managed files and the `.opencode/skills` symlink; restore a `.bak.*` file by renaming it back.

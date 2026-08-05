@@ -27,12 +27,6 @@
       "skillPath": "skills/i-have-adhd/SKILL.md",
       "computedHash": "b6588e2164feefb5b2e413e1898412c304dc32fdf6e10ae456122751d71e34d6"
     },
-    "justfile": {
-      "source": "iloveitaly/ai-skills",
-      "sourceType": "github",
-      "skillPath": "skills/justfile/SKILL.md",
-      "computedHash": "ad4231ffae0ccb48e73494b818c5dd840832c8f55b637ab277b4241f32f8c82e"
-    },
     "ponytail": {
       "source": "DietrichGebert/ponytail",
       "ref": "main",
@@ -59,7 +53,7 @@
       "ref": "master",
       "sourceType": "github",
       "skillPath": ".pi/skills/repo-skill-installer/SKILL.md",
-      "computedHash": "f1af27a4d9fd9aff332aee668286a0e6f28ad170534e6fc025b874c8c20847a7"
+      "computedHash": "85746200479b45c29429f627ddd3ea3d95df769274f868e7ff33184b7a64d4fc"
     },
     "ruff": {
       "source": "astral-sh/claude-code-plugins",

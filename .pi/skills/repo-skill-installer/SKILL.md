@@ -13,15 +13,14 @@ Use `.pi/skills/<skill-name>/` as the only canonical skill location.
 2. Put the complete skill payload under `.pi/skills/<skill-name>/`.
 3. Add or update its source metadata in `skills-lock.json`.
 4. Run `node scripts/skills.mjs rehash`.
-5. Run `just verify` and confirm `.opencode/skills` still links to `../.pi/skills`.
+5. Run `node scripts/skills.mjs verify` and confirm `.opencode/skills` still links to `../.pi/skills`.
 
-For a normal upstream refresh, use:
+For a normal upstream refresh:
 
 ```bash
-just update-skill <skill-name>
+npx skills add <source> --skill <skill-name> --agent pi -y
+node scripts/skills.mjs verify
 ```
-
-Use `just update` only when every third-party skill should be refreshed.
 
 ## Guardrails
 

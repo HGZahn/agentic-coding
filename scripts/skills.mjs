@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
-import { mkdtemp, readFile, readdir, rm, cp, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const skillsDir = join(root, ".pi", "skills");
 const lockPath = join(root, "skills-lock.json");
-const ownSource = "HGZahn/agentic-coding";
 
 async function lockfile() {
   return JSON.parse(await readFile(lockPath, "utf8"));
@@ -86,49 +83,11 @@ async function rehash(lock) {
   console.log(`Rehashed ${Object.keys(sorted).length} skills.`);
 }
 
-async function update(requestedName) {
-  const lock = await lockfile();
-  const names = requestedName ? [requestedName] : Object.keys(lock.skills ?? {}).sort();
-  if (requestedName && !lock.skills?.[requestedName]) throw new Error(`Unknown skill: ${requestedName}`);
-
-  const temporary = await mkdtemp(join(tmpdir(), "agentic-coding-skills-"));
-  const clones = new Map();
-  try {
-    for (const name of names) {
-      const entry = lock.skills[name];
-      if (entry.source === ownSource) continue;
-      const cloneKey = `${entry.source}@${entry.ref ?? "HEAD"}`;
-      let checkout = clones.get(cloneKey);
-      if (!checkout) {
-        checkout = join(temporary, String(clones.size));
-        const args = ["clone", "--depth", "1"];
-        if (entry.ref) args.push("--branch", entry.ref);
-        args.push(`https://github.com/${entry.source}.git`, checkout);
-        console.log(`Fetching ${cloneKey}...`);
-        execFileSync("git", args, { stdio: "inherit" });
-        clones.set(cloneKey, checkout);
-      }
-      const sourceDir = join(checkout, dirname(entry.skillPath));
-      const destination = join(skillsDir, name);
-      await rm(destination, { recursive: true, force: true });
-      await cp(sourceDir, destination, {
-        recursive: true,
-        filter: (path) => !path.split(/[\\/]/).includes(".git") && !path.split(/[\\/]/).includes("node_modules"),
-      });
-      console.log(`Updated ${name}.`);
-    }
-    await rehash(lock);
-  } finally {
-    await rm(temporary, { recursive: true, force: true });
-  }
-}
-
-const [command = "verify", argument] = process.argv.slice(2);
+const [command = "verify"] = process.argv.slice(2);
 try {
   if (command === "verify") await verify();
   else if (command === "rehash") await rehash();
-  else if (command === "update") await update(argument);
-  else throw new Error(`Usage: scripts/skills.mjs verify|rehash|update [skill]`);
+  else throw new Error(`Usage: scripts/skills.mjs verify|rehash`);
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
