@@ -11,21 +11,21 @@
       "source": "vercel-labs/agent-browser",
       "sourceType": "github",
       "skillPath": "skills/agent-browser/SKILL.md",
-      "computedHash": "edad4d958bc4baf821e3391bb9889a03a8bbc0e4d7f54ee4a5f30837654fed83"
+      "computedHash": "b93b77d9a63143fcefa7d371c1fceba58f1f310ef76a5f2ad3d4d2077efa8c25"
     },
     "grill-me": {
       "source": "mattpocock/skills",
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "f321507f77702a54af1db66549ec1685fc625390d06c57d7949cdcda8eb1b5c7"
+      "computedHash": "f361db4e15e6bfd562a9282b1dccda513910a50061f9e838ce017be9c69dde3f"
     },
     "i-have-adhd": {
       "source": "ayghri/i-have-adhd",
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/i-have-adhd/SKILL.md",
-      "computedHash": ""
+      "computedHash": "b6588e2164feefb5b2e413e1898412c304dc32fdf6e10ae456122751d71e34d6"
     },
     "justfile": {
       "source": "iloveitaly/ai-skills",
@@ -38,28 +38,28 @@
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/ponytail/SKILL.md",
-      "computedHash": "55e888f9d81f873068de13d44f4f963595aa2c2c6bb0f9024160bea79f756618"
+      "computedHash": "210fa0831f649ce9f8a305f7b7c8cf2a0dd09ac4dd53067109941b96e7811d4e"
     },
     "ponytail-audit": {
       "source": "HGZahn/agentic-coding",
       "ref": "master",
       "sourceType": "github",
-      "skillPath": "skills/ponytail-audit/SKILL.md",
+      "skillPath": ".pi/skills/ponytail-audit/SKILL.md",
       "computedHash": "3c8df62eac0ca69a350d4f3da3a1fe847d6084ca3b089e270d9353780ec1cc85"
     },
     "ponytail-review": {
       "source": "HGZahn/agentic-coding",
       "ref": "master",
       "sourceType": "github",
-      "skillPath": "skills/ponytail-review/SKILL.md",
+      "skillPath": ".pi/skills/ponytail-review/SKILL.md",
       "computedHash": "f2bfbb82d93c726fa8caa8450ff74c57520fae18b084429cdba70b85f108b8fb"
     },
     "repo-skill-installer": {
       "source": "HGZahn/agentic-coding",
       "ref": "master",
       "sourceType": "github",
-      "skillPath": "skills/repo-skill-installer/SKILL.md",
-      "computedHash": "5325c95d0eeac1c55db2e8f76f9ec2b398dcb0da23d06ab4df85c8248116d814"
+      "skillPath": ".pi/skills/repo-skill-installer/SKILL.md",
+      "computedHash": "f1af27a4d9fd9aff332aee668286a0e6f28ad170534e6fc025b874c8c20847a7"
     },
     "ruff": {
       "source": "astral-sh/claude-code-plugins",

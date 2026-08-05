@@ -1,107 +1,59 @@
-test:
+verify:
+    node scripts/skills.mjs verify
+    test "$(readlink .opencode/skills)" = "../.pi/skills"
+    test -f .pi/extensions/plan-build-mode.ts
+    test -f .pi/settings.json
+
+test: verify
     #!/usr/bin/env bash
     set -euo pipefail
-
+    root="{{ justfile_directory() }}"
     tmpdir="$(mktemp -d)"
-    cleanup() {
-        rm -rf "$tmpdir"
-    }
-    trap cleanup EXIT
+    trap 'rm -rf "$tmpdir"' EXIT
 
-    cd "$tmpdir"
-    AGENTIC_CODING_SOURCE_DIR="{{ justfile_directory() }}" bash "{{ justfile_directory() }}/get-started.sh"
-
-    test -d .agents
+    target="$tmpdir/fresh"
+    mkdir -p "$target"
+    cd "$target"
+    AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --yes --no-keybindings
+    test -d .pi/skills
+    test -f .pi/extensions/plan-build-mode.ts
+    test -f .pi/settings.json
     test -f AGENTS.md
-    test -f skills-lock.json
+    test "$(readlink .opencode/skills)" = "../.pi/skills"
+
+    AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --yes --no-keybindings
+    test ! -e .pi/skills.bak.*
+
+    conflict="$tmpdir/conflict"
+    mkdir -p "$conflict/.opencode/skills"
+    if (cd "$conflict" && AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --yes --no-keybindings); then
+        echo "Expected OpenCode conflict to fail" >&2
+        exit 1
+    fi
+    test ! -e "$conflict/.pi"
+
+    keybindings="$tmpdir/pi-agent"
+    cd "$target"
+    PI_CODING_AGENT_DIR="$keybindings" AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --yes --keybindings
+    node -e 'const k=require(process.argv[1]); if(k["app.thinking.cycle"]!=="ctrl+t" || !Array.isArray(k["app.thinking.toggle"]) || k["app.thinking.toggle"].length) process.exit(1)' "$keybindings/keybindings.json"
+    PI_CODING_AGENT_DIR="$keybindings" AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --yes --keybindings
+    test ! -e "$keybindings"/keybindings.json.bak.*
+
+    dry="$tmpdir/dry"
+    mkdir -p "$dry"
+    cd "$dry"
+    AGENTIC_CODING_SOURCE_DIR="$root" bash "$root/get-started.sh" --dry-run --yes --no-keybindings
+    test ! -e .pi
 
     echo "All tests passed."
 
-update:
-    #!/usr/bin/env bash
-    set -euo pipefail
+update skill="":
+    node scripts/skills.mjs update {{ skill }}
+    node scripts/skills.mjs verify
 
-    cd "{{ justfile_directory() }}"
+update-skill skill:
+    node scripts/skills.mjs update {{ skill }}
+    node scripts/skills.mjs verify
 
-    echo "Installing/updating locked skills..."
-    while IFS= read -r line; do
-    set -- $line
-    npx -y skills add "$2" --skill "$1" --agent codex opencode -y </dev/null
-    done < <(node <<'NODE'
-    const fs = require('node:fs');
-    const lock = JSON.parse(fs.readFileSync('skills-lock.json', 'utf8'));
-    for (const [name, entry] of Object.entries(lock.skills || {})) {
-    console.log(`${name} ${entry.source}`);
-    }
-    NODE
-    )
-
-    echo "Recomputing skills-lock.json hashes..."
-    node <<'NODE'
-    const fs = require('node:fs/promises');
-    const path = require('node:path');
-    const crypto = require('node:crypto');
-
-    const ROOT = process.cwd();
-    const SKILLS_DIR = path.join(ROOT, '.agents', 'skills');
-    const LOCK_PATH = path.join(ROOT, 'skills-lock.json');
-
-    async function collectFiles(baseDir, currentDir, out) {
-    const entries = await fs.readdir(currentDir, { withFileTypes: true });
-    entries.sort((a, b) => a.name.localeCompare(b.name));
-    for (const entry of entries) {
-        if (entry.name === '.git' || entry.name === 'node_modules') continue;
-        const full = path.join(currentDir, entry.name);
-        if (entry.isDirectory()) {
-        await collectFiles(baseDir, full, out);
-        continue;
-        }
-        if (!entry.isFile()) continue;
-        const content = await fs.readFile(full);
-        const rel = path.relative(baseDir, full).split(path.sep).join('/');
-        out.push({ rel, content });
-    }
-    }
-
-    async function computeSkillHash(skillDir) {
-    const files = [];
-    await collectFiles(skillDir, skillDir, files);
-    files.sort((a, b) => a.rel.localeCompare(b.rel));
-    const hash = crypto.createHash('sha256');
-    for (const file of files) {
-        hash.update(file.rel);
-        hash.update(file.content);
-    }
-    return hash.digest('hex');
-    }
-
-    async function main() {
-    const existing = JSON.parse(await fs.readFile(LOCK_PATH, 'utf8'));
-    const sourceMap = existing.skills || {};
-    const skills = Object.keys(sourceMap).sort((a, b) => a.localeCompare(b));
-    const lock = { version: 1, skills: {} };
-
-    for (const skill of skills) {
-        const src = sourceMap[skill];
-        if (!src) throw new Error(`Missing source mapping for skill: ${skill}`);
-        const skillDir = path.join(SKILLS_DIR, skill);
-        const computedHash = await computeSkillHash(skillDir);
-        const entry = {
-        ...src,
-        sourceType: src.sourceType || 'github',
-        computedHash
-        };
-        lock.skills[skill] = entry;
-    }
-
-    await fs.writeFile(LOCK_PATH, JSON.stringify(lock, null, 2) + '\n', 'utf8');
-    console.log(`Wrote ${LOCK_PATH} with ${skills.length} skills`);
-    }
-
-    main().catch((err) => {
-    console.error(err.message || String(err));
-    process.exit(1);
-    });
-    NODE
-
-    echo "Done."
+install target:
+    cd {{ target }} && AGENTIC_CODING_SOURCE_DIR="{{ justfile_directory() }}" bash "{{ justfile_directory() }}/get-started.sh"
