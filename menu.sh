@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 
 select action in "Update skills" "Verify skills lock" "Rehash skills lock" "Test installer" "Quit"; do
   case $REPLY in
-    1) npx skills update ;;
+    1) node scripts/update-pi-skills.mjs && node scripts/skills.mjs rehash ;;
     2) node scripts/skills.mjs verify ;;
     3) node scripts/skills.mjs rehash ;;
     4) bash scripts/test-install.sh ;;
