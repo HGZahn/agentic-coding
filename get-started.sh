@@ -20,6 +20,19 @@ confirm() {
   [[ "$answer" == "y" || "$answer" == "Y" ]]
 }
 
+read_line() {
+  local line
+  if [[ -t 0 ]]; then
+    IFS= read -r line || { REPLY_LINE=""; return 1; }
+  elif (exec 0</dev/tty) 2>/dev/null; then
+    IFS= read -r line </dev/tty || { REPLY_LINE=""; return 1; }
+  else
+    IFS= read -r line || { REPLY_LINE=""; return 1; }
+  fi
+  REPLY_LINE="$line"
+  return 0
+}
+
 same_path() {
   local source="$1" target="$2"
   if [[ -d "$source" && -d "$target" ]]; then
@@ -47,20 +60,11 @@ else
   SRC_DIR="$TMP_DIR/$TOP_DIR"
 fi
 
-for required in .pi/skills .pi/extensions .pi/settings.json skills-lock.json AGENTS.md; do
+for required in .pi/skills .pi/themes .pi/extensions .pi/settings.json skill-profiles.json skills-lock.json AGENTS.md; do
   [[ -e "${SRC_DIR}/${required}" ]] || { say "Downloaded source is missing ${required}." >&2; exit 1; }
 done
 
-# --- strict preflight: never touch a noncanonical .opencode/skills ---
-link="${TARGET_DIR}/.opencode/skills"
-if [[ -e "$link" || -L "$link" ]]; then
-  if [[ ! -L "$link" || "$(readlink "$link")" != "../.pi/skills" ]]; then
-    say ".opencode/skills exists but is not the canonical ../.pi/skills symlink; refusing to modify the project." >&2
-    exit 1
-  fi
-fi
-
-# --- pi config: settings + extensions + AGENTS.md ---
+# --- pi config: settings + themes + extensions + AGENTS.md ---
 pi_changes=0
 apply_pi() {
   local source="$1" target="$2" label="$3"
@@ -78,7 +82,20 @@ apply_pi() {
   pi_changes=1
 }
 
-# --- skills: .pi/skills + skills-lock.json + opencode link ---
+install_pi() {
+  apply_pi "${SRC_DIR}/.pi/settings.json" "${TARGET_DIR}/.pi/settings.json" ".pi/settings.json"
+  while IFS= read -r -d '' theme; do
+    name="$(basename "$theme")"
+    apply_pi "$theme" "${TARGET_DIR}/.pi/themes/${name}" ".pi/themes/${name}"
+  done < <(find "${SRC_DIR}/.pi/themes" -maxdepth 1 -type f -print0 | sort -z)
+  while IFS= read -r -d '' extension; do
+    name="$(basename "$extension")"
+    apply_pi "$extension" "${TARGET_DIR}/.pi/extensions/${name}" ".pi/extensions/${name}"
+  done < <(find "${SRC_DIR}/.pi/extensions" -maxdepth 1 -type f -print0 | sort -z)
+  apply_pi "${SRC_DIR}/AGENTS.md" "${TARGET_DIR}/AGENTS.md" "AGENTS.md"
+}
+
+# --- skills: profile multi-select + .pi/skills + skills-lock.json ---
 skills_changes=0
 apply_skills() {
   local source="$1" target="$2" label="$3"
@@ -96,20 +113,79 @@ apply_skills() {
   skills_changes=1
 }
 
-install_pi() {
-  apply_pi "${SRC_DIR}/.pi/settings.json" "${TARGET_DIR}/.pi/settings.json" ".pi/settings.json"
-  while IFS= read -r -d '' extension; do
-    name="$(basename "$extension")"
-    apply_pi "$extension" "${TARGET_DIR}/.pi/extensions/${name}" ".pi/extensions/${name}"
-  done < <(find "${SRC_DIR}/.pi/extensions" -maxdepth 1 -type f -print0 | sort -z)
-  apply_pi "${SRC_DIR}/AGENTS.md" "${TARGET_DIR}/AGENTS.md" "AGENTS.md"
+profile_skills() {
+  # $1 = skill-profiles.json, $2 = profile name; prints skill names, one per line
+  awk -v prof="$2" '
+    $0 ~ "^  \"" prof "\": \\[" { inarr = 1; next }
+    inarr && /^  \]/ { exit }
+    inarr {
+      line = $0
+      gsub(/[",\[\]]/, "", line)
+      gsub(/^[ \t]+|[ \t]+$/, "", line)
+      if (line != "") print line
+    }
+  ' "$1"
+}
+
+select_profiles() {
+  local -a names=("$@") marks
+  local -i i j count=${#names[@]}
+  local line c
+  for ((i = 0; i < count; i++)); do marks[$i]=" "; done
+  for ((i = 0; i < count; i++)); do
+    if [[ "${names[$i]}" == "base" ]]; then
+      marks[$i]="x"
+    fi
+  done
+
+  while :; do
+    printf '\nSkill profiles (toggle 1-%d, Enter to confirm):\n' "$count"
+    for ((i = 0; i < count; i++)); do
+      printf '  [%s] %s\n' "${marks[$i]}" "${names[$i]}"
+    done
+    printf '> '
+    if ! read_line; then
+      break
+    fi
+    line="$REPLY_LINE"
+    [[ -z "$line" ]] && break
+    for ((j = 0; j < ${#line}; j++)); do
+      c="${line:j:1}"
+      if [[ "$c" =~ [1-9] ]]; then
+        i=$(( c - 1 ))
+        if (( i < count )); then
+          [[ "${marks[$i]}" == "x" ]] && marks[$i]=" " || marks[$i]="x"
+        fi
+      fi
+    done
+  done
+
+  SELECTED_PROFILES=()
+  for ((i = 0; i < count; i++)); do
+    if [[ "${marks[$i]}" == "x" ]]; then
+      SELECTED_PROFILES+=("${names[$i]}")
+    fi
+  done
+  return 0
 }
 
 install_skills() {
-  apply_skills "${SRC_DIR}/.pi/skills" "${TARGET_DIR}/.pi/skills" ".pi/skills"
+  local skill
+  for skill in "$@"; do
+    if [[ -d "${SRC_DIR}/.pi/skills/${skill}" ]]; then
+      apply_skills "${SRC_DIR}/.pi/skills/${skill}" "${TARGET_DIR}/.pi/skills/${skill}" ".pi/skills/${skill}"
+    else
+      say "  skip     .pi/skills/${skill} (missing in source)" >&2
+    fi
+  done
   apply_skills "${SRC_DIR}/skills-lock.json" "${TARGET_DIR}/skills-lock.json" "skills-lock.json"
+
+  # OpenCode compatibility (secondary): link .opencode/skills -> ../.pi/skills when possible.
+  link="${TARGET_DIR}/.opencode/skills"
   if [[ -L "$link" && "$(readlink "$link")" == "../.pi/skills" ]]; then
     say "  unchanged .opencode/skills"
+  elif [[ -e "$link" || -L "$link" ]]; then
+    say "  skip     .opencode/skills (exists; left untouched)"
   else
     mkdir -p "${TARGET_DIR}/.opencode"
     ln -s ../.pi/skills "$link"
@@ -121,13 +197,52 @@ install_skills() {
 say "Agentic coding setup"
 say "Install into: ${TARGET_DIR}"
 
-if confirm "Install pi config (settings, extensions, AGENTS.md)?"; then
+if confirm "Install pi config (settings, themes, extensions, AGENTS.md)?"; then
   install_pi
   [[ "$pi_changes" -eq 1 ]] && say "Installed pi config."
 fi
 
-if confirm "Install skills (.pi/skills, skills-lock.json, .opencode/skills link)?"; then
-  install_skills
+if confirm "Install skills?"; then
+  PROFILE_NAMES=()
+  while IFS= read -r name; do
+    PROFILE_NAMES+=("$name")
+  done < <(awk '
+    /^  "[^"]+": \[/ {
+      name = $0
+      sub(/^  "/, "", name)
+      sub(/": \[.*/, "", name)
+      print name
+    }
+  ' "${SRC_DIR}/skill-profiles.json")
+
+  select_profiles "${PROFILE_NAMES[@]}"
+
+  if [[ "${#SELECTED_PROFILES[@]}" -eq 0 ]]; then
+    say "No skill profiles selected; nothing to install." >&2
+    exit 1
+  fi
+
+  SELECTED_SKILLS=()
+  for profile in "${SELECTED_PROFILES[@]}"; do
+    while IFS= read -r skill; do
+      if [[ -z "$skill" ]]; then
+        continue
+      fi
+      found=""
+      for existing in "${SELECTED_SKILLS[@]}"; do
+        if [[ "$existing" == "$skill" ]]; then
+          found=1
+          break
+        fi
+      done
+      if [[ -z "$found" ]]; then
+        SELECTED_SKILLS+=("$skill")
+      fi
+    done < <(profile_skills "${SRC_DIR}/skill-profiles.json" "$profile")
+  done
+
+  say "Installing profiles: ${SELECTED_PROFILES[*]}"
+  install_skills "${SELECTED_SKILLS[@]}"
   [[ "$skills_changes" -eq 1 ]] && say "Installed skills."
 fi
 

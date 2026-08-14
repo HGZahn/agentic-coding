@@ -1,4 +1,5 @@
 {
-  "hideThinkingBlock": true,
-  "enableSkillCommands": true
+  "hideThinkingBlock": false,
+  "enableSkillCommands": true,
+  "theme": "agentic"
 }

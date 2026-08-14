@@ -13,6 +13,12 @@
       "skillPath": "skills/agent-browser/SKILL.md",
       "computedHash": "548a1f92c7ff55081c65ec1577ff5136beb1d0f58252d448d5bd43f05fefc703"
     },
+    "gpt-imagegen": {
+      "source": "local",
+      "sourceType": "local",
+      "skillPath": "SKILL.md",
+      "computedHash": "7471c0e7aec6cc43e5619235e600f96a9d4caba30d8052fc053b303f86505688"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "ref": "main",

@@ -1,0 +1,22 @@
+{
+  "base": [
+    "5whys",
+    "agent-browser",
+    "gpt-imagegen",
+    "grill-me",
+    "i-have-adhd",
+    "ponytail",
+    "skill-creator",
+    "systematic-debugging",
+    "value-realization"
+  ],
+  "pythondev": [
+    "ruff",
+    "uv"
+  ],
+  "devops": [
+    "5whys",
+    "i-have-adhd",
+    "gpt-imagegen"
+  ]
+}

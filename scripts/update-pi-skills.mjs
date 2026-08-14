@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const lock = JSON.parse(await readFile(join(root, "skills-lock.json"), "utf8"));
 
-for (const [name, { source, ref }] of Object.entries(lock.skills)) {
+for (const [name, { source, ref, sourceType }] of Object.entries(lock.skills)) {
+  if (sourceType === "local") continue;
   if (!source) throw new Error(`${name}: missing source`);
   execFileSync("npx", [
     "skills", "add", ref ? `${source}#${ref}` : source,
