@@ -20,16 +20,16 @@ confirm() {
   [[ "$answer" == "y" || "$answer" == "Y" ]]
 }
 
-read_line() {
-  local line
+read_key() {
+  local key
   if [[ -t 0 ]]; then
-    IFS= read -r line || { REPLY_LINE=""; return 1; }
+    IFS= read -r -s -n 1 key || { REPLY_KEY=""; return 1; }
   elif (exec 0</dev/tty) 2>/dev/null; then
-    IFS= read -r line </dev/tty || { REPLY_LINE=""; return 1; }
+    IFS= read -r -s -n 1 key </dev/tty || { REPLY_KEY=""; return 1; }
   else
-    IFS= read -r line || { REPLY_LINE=""; return 1; }
+    IFS= read -r -n 1 key || { REPLY_KEY=""; return 1; }
   fi
-  REPLY_LINE="$line"
+  REPLY_KEY="$key"
   return 0
 }
 
@@ -130,7 +130,7 @@ profile_skills() {
 select_profiles() {
   local -a names=("$@") marks
   local -i i j count=${#names[@]}
-  local line c
+  local key c
   for ((i = 0; i < count; i++)); do marks[$i]=" "; done
   for ((i = 0; i < count; i++)); do
     if [[ "${names[$i]}" == "base" ]]; then
@@ -144,13 +144,17 @@ select_profiles() {
       printf '  [%s] %s\n' "${marks[$i]}" "${names[$i]}"
     done
     printf '> '
-    if ! read_line; then
+    if ! read_key; then
+      printf '\n'
       break
     fi
-    line="$REPLY_LINE"
-    [[ -z "$line" ]] && break
-    for ((j = 0; j < ${#line}; j++)); do
-      c="${line:j:1}"
+    key="$REPLY_KEY"
+    if [[ -z "$key" ]]; then
+      printf '\n'
+      break
+    fi
+    for ((j = 0; j < ${#key}; j++)); do
+      c="${key:j:1}"
       if [[ "$c" =~ [1-9] ]]; then
         i=$(( c - 1 ))
         if (( i < count )); then

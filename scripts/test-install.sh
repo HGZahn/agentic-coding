@@ -43,6 +43,29 @@ test -d .pi/skills/ruff
 test -d .pi/skills/uv
 test -d .pi/skills/5whys
 
+# interactive profile keys toggle before Enter is pressed
+instant="$tmpdir/instant"
+mkdir -p "$instant"
+fifo="$tmpdir/instant-input"
+output="$tmpdir/instant-output"
+mkfifo "$fifo"
+(cd "$instant" && installer <"$fifo" >"$output" 2>&1) &
+pid=$!
+exec 3>"$fifo"
+printf 'n\ny\n2' >&3
+toggled=""
+for _ in {1..40}; do
+  if grep -q '  \[x\] pythondev' "$output"; then
+    toggled=1
+    break
+  fi
+  sleep 0.05
+done
+printf '\n' >&3
+exec 3>&-
+wait "$pid"
+[[ -n "$toggled" ]] || { echo "Profile key did not toggle before Enter" >&2; exit 1; }
+
 # deselecting everything exits nonzero without installing skills
 none="$tmpdir/none"
 mkdir -p "$none"

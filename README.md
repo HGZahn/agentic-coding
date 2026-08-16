@@ -1,8 +1,8 @@
 # Agentic Coding for Pi
 
-A personal, pi-first coding setup: integrated skills with profiles, plan/build mode, and an unobtrusive thinking display. Pi is first-class; OpenCode compatibility is a secondary nicety that never blocks installation.
+Personal dotfiles-style setup for Pi projects: integrated skills with profiles, plan/build mode, and an unobtrusive thinking display. It primarily keeps my own projects consistent; the repository is public so others can inspect or reuse the setup as-is.
 
-`.pi/` is the source of truth. When present, OpenCode reads the same skills through `.opencode/skills -> ../.pi/skills`; it never maintains a separate copy.
+`.pi/` is the source of truth. When present, OpenCode reads the same skills through `.opencode/skills -> ../.pi/skills`; it never maintains a separate copy. The defaults are intentionally opinionated rather than a general-purpose Pi configuration.
 
 ## Install
 
@@ -25,13 +25,13 @@ pi
 
 ## Skill profiles
 
-Skills are grouped into three profiles; pick any combination at install time. Toggle with `1`–`3`, confirm with Enter. Selecting none exits without installing skills.
+Skills are grouped into three profiles; pick any combination at install time. Each `1`–`3` keypress toggles a profile immediately; Enter confirms. Selecting none exits without installing skills.
 
 - **base** (pre-selected) — general-purpose skills: debugging methodology, coding philosophy, meta tooling, browser automation, image generation.
 - **pythondev** — Python tooling: `uv`, `ruff`.
 - **devops** — debugging and productivity subset for ops work.
 
-`skill-profiles.json` maps profiles to skills — edit it to regroup.
+`skill-profiles.json` maps profiles to skills — edit it to regroup. Re-running the installer adds or updates the selected skills; it does not remove skills installed by an earlier profile selection.
 
 ## Thinking display
 
@@ -58,8 +58,8 @@ Requirements: Bash and Node.js.
 Run `./menu.sh` to select a maintenance action interactively.
 
 ```bash
-npx skills update                # update installed skills
-node scripts/skills.mjs verify   # lock matches .pi/skills (hashes, frontmatter)
+node scripts/update-pi-skills.mjs # update installed skills
+node scripts/skills.mjs verify    # lock matches .pi/skills (hashes, frontmatter)
 node scripts/skills.mjs rehash   # recompute hashes after editing vendored skills
 bash scripts/test-install.sh     # fresh, decline, profile, repeat, conflict installs
 ```
