@@ -16,18 +16,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify skills lock and layout
-        run: node scripts/skills.mjs verify
-
-      - name: Verify OpenCode symlink
+      - name: Validate manifest and scripts
         run: |
-          test "$(readlink .opencode/skills)" = "../.pi/skills"
-          test -f .pi/extensions/plan-build-mode.ts
-          test -f .pi/settings.json
-          test -f skills-lock.json
+          node -e 'const m = require("./skills.manifest.json"); const names = new Set(Object.keys(m.skills)); for (const [p, list] of Object.entries(m.profiles)) for (const s of list) { if (!names.has(s)) throw new Error(`profile ${p} references unknown skill ${s}`); } console.log("manifest ok");'
+          bash -n setup.sh
+          bash -n get-started.sh
 
-      - name: Validate installer syntax
-        run: bash -n get-started.sh
+      - name: Test setup --user (fake HOME, files only)
+        run: |
+          FAKE_HOME=$(mktemp -d)
+          HOME=$FAKE_HOME bash ./setup.sh --user --check --no-skills && exit 1 || true
+          HOME=$FAKE_HOME bash ./setup.sh --user --no-skills
+          test -L "$FAKE_HOME/AGENTS.md"
+          test -L "$FAKE_HOME/.pi/agent/settings.json"
+          test -L "$FAKE_HOME/.pi/agent/themes/agentic.json"
+          test -L "$FAKE_HOME/.pi/agent/extensions/plan-build-mode.ts"
+          HOME=$FAKE_HOME bash ./setup.sh --user --check --no-skills
+          rm -rf "$FAKE_HOME"
 
-      - name: Test installer (fresh, repeat, conflict)
-        run: bash scripts/test-install.sh
+      - name: Test setup --project (fresh, conflict, adopt)
+        run: |
+          T=$(mktemp -d)
+          bash ./setup.sh --project "$T" --no-skills
+          test -f "$T/.pi/settings.json"
+          test -f "$T/AGENTS.md"
+          bash ./setup.sh --project "$T" --check --no-skills
+          echo custom > "$T/AGENTS.md"
+          bash ./setup.sh --project "$T" --no-skills && exit 1 || true
+          bash ./setup.sh --project "$T" --adopt --no-skills
+          test -f "$T/AGENTS.md"
+          rm -rf "$T"

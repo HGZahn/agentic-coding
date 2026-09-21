@@ -1,73 +1,55 @@
-# Agentic Coding for Pi
+<p align="center">
+  <img src="assets/header.svg" alt="Agentic Coding" width="800">
+</p>
 
-Personal dotfiles-style setup for Pi projects: integrated skills with profiles, plan/build mode, and an unobtrusive thinking display. It primarily keeps my own projects consistent; the repository is public so others can inspect or reuse the setup as-is.
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/HGZahn/agentic-coding"></a>
+  <a href="https://github.com/HGZahn/agentic-coding/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/HGZahn/agentic-coding/actions/workflows/ci.yml/badge.svg"></a>
+</p>
 
-`.pi/` is the source of truth. When present, OpenCode reads the same skills through `.opencode/skills -> ../.pi/skills`; it never maintains a separate copy. The defaults are intentionally opinionated rather than a general-purpose Pi configuration.
+# Agentic Coding
 
-## Install
+Personal dotfiles + pi/project setup. Skills fetched upstream, not vendored.
 
-Run inside the project you want to configure:
+## What's inside
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
-```
+| Path | Purpose |
+|------|---------|
+| `home/` | Mirrors `$HOME` — `AGENTS.md`, `.pi/agent/settings.json`, theme, extension. Symlinked, never copied. |
+| `skills.manifest.json` | Hand-selected skill profiles (`base`/`pythondev`/`devops`) mapping to upstream sources. |
+| `skills/gpt-imagegen/` | Only local skill. |
+| `template/project/` | Starter `.pi/settings.json` + `AGENTS.md` for new repos. |
+| `setup.sh` | Single script: `--user` (dotfiles) or `--project` (bootstrap). Interactive too. |
+| `get-started.sh` | `curl … \| bash` one-liner. |
 
-The installer asks two questions:
+## Quick start
 
-1. **Install pi config?** — adds `.pi/settings.json`, `.pi/themes/`, `.pi/extensions/`, and `AGENTS.md`. Differing managed files are backed up with a `.bak.<timestamp>` suffix.
-2. **Install skills?** — opens the skill-profile multi-select (below), installs the chosen profiles' skills, copies `skills-lock.json`, and links `.opencode/skills -> ../.pi/skills` when that path is free.
+**New laptop:** `curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash`
 
-Then start pi and approve project trust:
+**With mise:** `git clone git@github.com:HGZahn/agentic-coding.git && cd agentic-coding && mise install && mise run setup-all`
 
-```bash
-pi
-```
+**Dotfiles only:** `./setup.sh --user --no-skills` or `mise run setup`
 
-## Skill profiles
+**New project:** `./setup.sh --project /path/to/repo` or `mise run init`
 
-Skills are grouped into three profiles; pick any combination at install time. Each `1`–`3` keypress toggles a profile immediately; Enter confirms. Selecting none exits without installing skills.
+**Check drift:** `./setup.sh --user --check` or `mise run doctor`
 
-- **base** (pre-selected) — general-purpose skills: debugging methodology, coding philosophy, meta tooling, browser automation, image generation.
-- **pythondev** — Python tooling: `uv`, `ruff`.
-- **devops** — debugging and productivity subset for ops work.
+## pi + OpenCode
 
-`skill-profiles.json` maps profiles to skills — edit it to regroup. Re-running the installer adds or updates the selected skills; it does not remove skills installed by an earlier profile selection.
+Both read from the same shared skill paths — pi natively (`~/.pi/agent/skills/`, `~/.agents/skills/`) and OpenCode through `.agents/skills`. No `.opencode/skills` symlink hack needed.
 
-## Thinking display
+## Flags
 
-Thoughts are shown in full text and dimmed by the bundled `agentic` theme (`thinkingText: dimGray`) so they stay readable but unobtrusive. Tune `hideThinkingBlock` or `theme` in `.pi/settings.json`.
+`--user` / `--project` accept: `--check`, `--apply`, `--adopt`, `--no-skills`, `--profiles X,Y`, `--agents X,Y`.
 
-## Plan and build modes
+## Skills
 
-The included extension provides:
+Third-party `npx skills` is the installer/updater/manager. No custom manager.
 
-- `/plan` — inspect and plan without editing project files
-- `/build` — restore full file editing
-- `Shift+Tab` — toggle modes
+- `mise run skills-list` / `mise run skills-update`
+- Profiles: `base`, `pythondev`, `devops`
+- Edit `skills.manifest.json`, rerun `./setup.sh --user`
 
-Existing global keybindings are never modified by the installer.
+## License
 
-## Integrated skills
-
-All skill payloads are committed under `.pi/skills` and work offline. `skills-lock.json` records each skill's upstream source, ref, path, and content hash — the harness-neutral provenance record of the whole repo; it is installed verbatim regardless of the selected profiles.
-
-## Maintaining this repository
-
-Requirements: Bash and Node.js.
-
-Run `./menu.sh` to select a maintenance action interactively.
-
-```bash
-node scripts/update-pi-skills.mjs # update installed skills
-node scripts/skills.mjs verify    # lock matches .pi/skills (hashes, frontmatter)
-node scripts/skills.mjs rehash   # recompute hashes after editing vendored skills
-bash scripts/test-install.sh     # fresh, decline, profile, repeat, conflict installs
-```
-
-Repository-owned skills are edited directly in `.pi/skills`, then `rehash` and `verify`. Profile membership is edited in `skill-profiles.json`.
-
-## Safety
-
-- Project credentials, sessions, models, and trust state are never copied.
-- A conflicting `.opencode/skills` is never imported, backed up, or deleted; the link is simply skipped and pi installs normally.
-- To uninstall, remove the managed files and the `.opencode/skills` symlink; restore a `.bak.*` file by renaming it back.
+MIT

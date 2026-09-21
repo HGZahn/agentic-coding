@@ -1,0 +1,65 @@
+{
+  "profiles": {
+    "base": [
+      "agent-browser",
+      "grill-me",
+      "i-have-adhd",
+      "ponytail",
+      "skill-creator",
+      "systematic-debugging",
+      "value-realization"
+    ],
+    "pythondev": [
+      "ruff",
+      "uv"
+    ],
+    "devops": [
+      "5whys",
+      "i-have-adhd"
+      
+    ],
+    "gamedev": [
+"gpt-imagegen"
+    ]
+  },
+  "skills": {
+    "agent-browser": {
+      "source": "vercel-labs/agent-browser"
+    },
+    "gpt-imagegen": {
+      "source": "local",
+      "path": "skills/gpt-imagegen"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "ref": "main"
+    },
+    "i-have-adhd": {
+      "source": "ayghri/i-have-adhd",
+      "ref": "main"
+    },
+    "ponytail": {
+      "source": "DietrichGebert/ponytail",
+      "ref": "main"
+    },
+    "ruff": {
+      "source": "astral-sh/claude-code-plugins",
+      "ref": "main"
+    },
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "ref": "main"
+    },
+    "systematic-debugging": {
+      "source": "ChrisWiles/claude-code-showcase",
+      "ref": "main"
+    },
+    "uv": {
+      "source": "astral-sh/claude-code-plugins",
+      "ref": "main"
+    },
+    "value-realization": {
+      "source": "Done-0/value-realization"
+    }
+  }
+}

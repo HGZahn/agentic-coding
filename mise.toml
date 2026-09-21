@@ -1,0 +1,30 @@
+[tools]
+node = "lts"
+
+[tasks.setup]
+description = "Dotfiles: link home/ to $HOME"
+run = "./setup.sh --user --no-skills"
+
+[tasks.setup-all]
+description = "Dotfiles + global skills"
+run = "./setup.sh --user"
+
+[tasks.doctor]
+description = "Report drift without changing"
+run = "./setup.sh --user --check --no-skills"
+
+[tasks.skills-update]
+description = "Update all global skills"
+run = "npx skills update -g -y"
+
+[tasks.skills-list]
+description = "List installed global skills"
+run = "npx skills list -g"
+
+[tasks.init]
+description = "Init project template in cwd"
+run = "./setup.sh --project"
+
+[tasks.init-local]
+description = "Init project in cwd with local skills"
+run = "./setup.sh --project --no-skills 2>/dev/null; ./setup.sh --project --profiles base --agents pi && echo 'Now approve project trust in pi'"

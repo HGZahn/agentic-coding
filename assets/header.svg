@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <rect width="1200" height="400" rx="24" fill="#18181e"/>
+  <rect x="24" y="24" width="1152" height="352" rx="16" fill="none" stroke="#8abeb7" stroke-width="2" opacity="0.6"/>
+  <text x="600" y="180" text-anchor="middle" font-family="sans-serif" font-size="84" font-weight="bold" fill="#d4d4d4">Agentic Coding</text>
+  <text x="600" y="240" text-anchor="middle" font-family="sans-serif" font-size="32" fill="#8abeb7">dotfiles + pi setup + project starter</text>
+  <text x="600" y="300" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#808080">fetch skills, link home, ship projects</text>
+</svg>
