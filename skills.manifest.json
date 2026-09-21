@@ -1,7 +1,9 @@
 {
   "profiles": {
     "base": [
+      "5whys",
       "agent-browser",
+      "gpt-imagegen",
       "grill-me",
       "i-have-adhd",
       "ponytail",
@@ -15,16 +17,24 @@
     ],
     "devops": [
       "5whys",
-      "i-have-adhd"
-      
+      "i-have-adhd",
+      "gpt-imagegen"
     ],
     "gamedev": [
-"gpt-imagegen"
+      "gpt-imagegen",
+      "godot-master"
     ]
   },
   "skills": {
+    "5whys": {
+      "source": "neurofoo/agent-skills"
+    },
     "agent-browser": {
       "source": "vercel-labs/agent-browser"
+    },
+    "godot-master": {
+      "source": "thedivergentai/gd-agentic-skills",
+      "ref": "main"
     },
     "gpt-imagegen": {
       "source": "local",
