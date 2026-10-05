@@ -27,6 +27,9 @@ Options:
   --project [DIR]      Use DIR (default: cwd), even outside a Git repository
   --profiles X,Y       Select and remember profiles (default: base + detected stack)
   --agents X,Y         Select and remember agents (default: auto; fallback pi,opencode)
+  --quiet, -q          No profile prompt and no progress output; use detected defaults
+  --silent, -s, --yes, -y
+                       Aliases of --quiet
   --no-skills          Install/check dotfiles or templates only
   --dry-run           Preview paths and commands without writing or fetching
   --adopt             Back up conflicting files to .bak.<timestamp> before replacing
@@ -36,11 +39,14 @@ Options:
 
 Auto scope: this checkout or outside a project -> user; another project -> project root.
 Saved profiles/agents win over detection; flags win over saved settings.
-Examples: agentic; agentic skills install --user --profiles base,creative,gamedev
+Interactive installs show a profile checklist; Enter keeps the detected selection.
+Examples: agentic; agentic --quiet; agentic skills install --user --profiles base,creative,gamedev
           agentic --project ~/code/app; agentic doctor; agentic update --user
 `;
 
 function fail(message) { throw new Error(message); }
+let quiet = false;
+function log(...args) { if (!quiet) console.log(...args); }
 function csv(value, label) {
   const values = value.split(',').map(v => v.trim());
   if (values.some(v => !v)) fail(`${label} cannot be empty.`);
@@ -70,6 +76,7 @@ function parse(args) {
         options[arg.slice(2)] = csv(args[++i], arg);
         break;
       case '--no-skills': options.skills = false; break;
+      case '--quiet': case '-q': case '--silent': case '-s': case '--yes': case '-y': options.quiet = true; break;
       case '--dry-run': options.dryRun = true; break;
       case '--adopt': options.adopt = true; break;
       case '--check': options.check = true; break;
@@ -127,6 +134,60 @@ function detectScope(options) {
   }
   return { scope: 'user', target: home };
 }
+// Checklist prompt on the controlling terminal. Only runs when stdin AND stdout are a TTY
+// and no --quiet/--profiles was passed; every non-interactive path (pipelines, CI, tests)
+// keeps the detected defaults instead of blocking on input.
+function promptProfiles(m, detected) {
+  if (!process.stdin.isTTY || !process.stdout.isTTY) return detected;
+  const write = text => fs.writeSync(2, text);
+  try {
+    const names = Object.keys(m.profiles);
+    const chosen = new Set(detected);
+    write('Select skill profiles to install:\n');
+    for (const [index, name] of names.entries()) write(`  [${chosen.has(name) ? 'x' : ' '}] ${index + 1}) ${name} (${m.profiles[name].length} skills)\n`);
+    write('Enter = keep the selection above | numbers/ranges (e.g. 1,3-4) | a = all\n');
+    for (;;) {
+      write('> ');
+      const line = readTTYLine(0);
+      if (line === null) return names.filter(name => chosen.has(name));
+      const input = line.trim().toLowerCase();
+      if (!input) return names.filter(name => chosen.has(name));
+      if (input === 'a' || input === 'all') return names;
+      const picks = new Set();
+      let valid = true;
+      for (const token of input.split(/[\s,]+/).filter(Boolean)) {
+        const range = /^(\d+)-(\d+)$/.exec(token);
+        if (range) {
+          const [first, last] = [+range[1], +range[2]];
+          if (first > last) { valid = false; break; }
+          for (let i = first; i <= last; i++) picks.add(i);
+          continue;
+        }
+        if (/^\d+$/.test(token)) { picks.add(+token); continue; }
+        valid = false; break;
+      }
+      if (!valid || !picks.size || [...picks].some(i => i < 1 || i > names.length)) {
+        write(`Enter numbers 1-${names.length}, comma/space separated ranges, or a for all.\n`);
+        continue;
+      }
+      return names.filter((_, index) => picks.has(index + 1));
+    }
+  } catch { return detected; }
+}
+function readTTYLine(fd) {
+  const bytes = [];
+  const byte = Buffer.alloc(1);
+  const decode = () => Buffer.from(bytes).toString('utf8');
+  for (;;) {
+    let read;
+    try { read = fs.readSync(fd, byte, 0, 1, null); } catch (error) { if (error.code === 'EAGAIN') continue; throw error; }
+    if (!read) return bytes.length ? decode() : null;
+    if (byte[0] === 10) return decode();
+    if (byte[0] === 13 || byte[0] === 8 || byte[0] === 127) continue;
+    if (byte[0] === 4) return bytes.length ? decode() : null;
+    bytes.push(byte[0]);
+  }
+}
 function settings(options, target, scope, m) {
   const configHome = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
   const file = scope === 'user' ? path.join(configHome, 'agentic-coding/config.json') : path.join(target, '.agents/agentic.json');
@@ -140,6 +201,8 @@ function settings(options, target, scope, m) {
       if (fs.existsSync(path.join(target, 'hyperframes.json'))) profiles.push('creative');
     }
   }
+  // Interactive installs confirm the selection; --quiet/--yes and missing TTYs keep the defaults.
+  if (!options.profiles && options.command === 'install' && !options.quiet) profiles = promptProfiles(m, profiles);
   if (!Array.isArray(profiles) || !profiles.length || profiles.some(p => typeof p !== 'string' || !Object.hasOwn(m.profiles, p))) fail(`Unknown/invalid profiles: ${JSON.stringify(profiles)}. Available: ${Object.keys(m.profiles).join(', ')}`);
   const selection = options.agents || saved.agents || ['auto'];
   if (!Array.isArray(selection) || !selection.length || selection.some(a => typeof a !== 'string' || !/^[a-z0-9-]+$/.test(a))) fail(`Invalid agents in ${file}`);
@@ -161,12 +224,17 @@ function prerequisites() {
   const [major, minor] = process.versions.node.split('.').map(Number);
   return [major < 22 || major === 22 && minor < 20 ? 'Node >=22.20.0 required; run mise install in the installer checkout.' : null, ...['npx', 'git'].filter(c => !executable(c)).map(c => `${c} required; install it and retry.`)].filter(Boolean);
 }
-function run(command, args, target, dryRun) {
+function run(command, args, target, dryRun, buffer = quiet) {
   const quote = s => /^[a-zA-Z0-9_./:@,#=-]+$/.test(s) ? s : JSON.stringify(s);
-  console.log(`$ ${[command, ...args].map(quote).join(' ')}`);
+  log(`$ ${[command, ...args].map(quote).join(' ')}`);
   if (dryRun) return;
-  const result = spawnSync(command, args, { cwd: target, stdio: 'inherit' });
-  if (result.error || result.status !== 0) fail(`${command} failed${result.error ? `: ${result.error.message}` : ` (exit ${result.status ?? result.signal})`}. Fix the error above and rerun.`);
+  // Quiet sync commands buffer upstream output and only surface it when the command fails.
+  // Informational subcommands (list/find) always stream: their output is the result.
+  const result = spawnSync(command, args, buffer ? { cwd: target, encoding: 'utf8' } : { cwd: target, stdio: 'inherit' });
+  if (result.error || result.status !== 0) {
+    const output = buffer ? [result.stdout, result.stderr].filter(Boolean).join('').trim() : '';
+    fail(`${command} failed${result.error ? `: ${result.error.message}` : ` (exit ${result.status ?? result.signal})`}.${output ? `\n${output}` : ''} Fix the error above and rerun.`);
+  }
 }
 function files(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -190,10 +258,10 @@ function syncFiles(plan, scope, options) {
   const stamp = `${new Date().toISOString().replace(/[-:.]/g, '')}.${process.pid}`;
   for (const { src, dst, conflict } of plan) {
     if (conflict) {
-      console.log(`${options.adopt ? 'backup' : 'conflict (would require --adopt)'}: ${dst}`);
+      log(`${options.adopt ? 'backup' : 'conflict (would require --adopt)'}: ${dst}`);
       if (!options.dryRun) fs.renameSync(dst, `${dst}.bak.${stamp}`);
     }
-    console.log(`${scope === 'user' ? 'link' : 'copy'}: ${dst} <- ${src}`);
+    log(`${scope === 'user' ? 'link' : 'copy'}: ${dst} <- ${src}`);
     if (!options.dryRun) {
       fs.mkdirSync(path.dirname(dst), { recursive: true });
       if (scope === 'user') fs.symlinkSync(src, dst); else fs.copyFileSync(src, dst);
@@ -216,11 +284,12 @@ function saveSettings(config) {
   if (fs.existsSync(config.file) && fs.readFileSync(config.file, 'utf8') === content) return;
   fs.mkdirSync(path.dirname(config.file), { recursive: true });
   fs.writeFileSync(config.file, content);
-  console.log(`preferences: ${config.file}`);
+  log(`preferences: ${config.file}`);
 }
 function main() {
   const argv = process.argv.slice(2);
   const options = parse([...argv]);
+  quiet = Boolean(options.quiet);
   if (options.help) { console.log(help); return; }
   const m = manifest();
   if (options.command === 'profiles') {
@@ -229,8 +298,8 @@ function main() {
   }
   const { scope, target } = detectScope(options);
   const config = settings(options, target, scope, m);
-  console.log(`Scope: ${scope} | Target: ${target}${options.dryRun ? ' | dry run' : ''}`);
-  console.log(`Profiles: ${config.profiles.join(', ')} | Agents: ${config.agents.join(', ')} | Skills: ${options.skills ? config.names.length : 'skipped'}`);
+  log(`Scope: ${scope} | Target: ${target}${options.dryRun ? ' | dry run' : ''}`);
+  log(`Profiles: ${config.profiles.join(', ')} | Agents: ${config.agents.join(', ')} | Skills: ${options.skills ? config.names.length : 'skipped'}`);
   if (options.command === 'update') {
     if (!fs.existsSync(path.join(root, '.git'))) fail(`Not a Git checkout: ${root}. Reinstall with get-started.sh.`);
     if (capture('git', ['status', '--porcelain']).length) fail(`Installer checkout has local changes: ${root}. Commit or stash them before updating.`);
@@ -258,7 +327,7 @@ function main() {
     const command = options.command.slice(7);
     if (['add', 'remove'].includes(command) && !options.extra.some(a => !a.startsWith('-'))) fail(`skills ${command} needs ${command === 'add' ? 'a source' : 'a skill name'}.`);
     const flags = command === 'find' ? [] : [...(scope === 'user' ? ['--global'] : command === 'update' ? ['--project'] : []), ...(command === 'list' ? [] : ['--yes'])];
-    run('npx', ['--yes', skillsCLI, command, ...options.extra, ...flags, ...(['add', 'list'].includes(command) ? ['--agent', ...config.agents] : [])], target, options.dryRun);
+    run('npx', ['--yes', skillsCLI, command, ...options.extra, ...flags, ...(['add', 'list'].includes(command) ? ['--agent', ...config.agents] : [])], target, options.dryRun, !['list', 'find'].includes(command));
     return;
   }
   syncFiles(plan, scope, options);
@@ -266,7 +335,7 @@ function main() {
     syncSkills(m, config, scope, target, options.dryRun);
     if (!options.dryRun) saveSettings(config);
   }
-  console.log(options.dryRun ? 'Preview only: nothing written or fetched.' : 'Done. Restart your coding agent to load newly installed skills.');
-  if (scope === 'user' && options.command === 'install' && !(process.env.PATH || '').split(path.delimiter).includes(path.join(home, '.local/bin'))) console.log('To use agentic by name, add this to your shell config: export PATH="$HOME/.local/bin:$PATH"');
+  log(options.dryRun ? 'Preview only: nothing written or fetched.' : 'Done. Restart your coding agent to load newly installed skills.');
+  if (scope === 'user' && options.command === 'install' && !(process.env.PATH || '').split(path.delimiter).includes(path.join(home, '.local/bin'))) log('To use agentic by name, add this to your shell config: export PATH="$HOME/.local/bin:$PATH"');
 }
 try { main(); } catch (error) { console.error(`Error: ${error.message}`); process.exitCode = 1; }

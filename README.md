@@ -35,6 +35,10 @@ mise install                          # optional, if Node is already installed
 
 The personal install links `agentic` into `~/.local/bin`. If that directory is not on your PATH, add `export PATH="$HOME/.local/bin:$PATH"` to your shell config. Until then, use `~/.local/bin/agentic` directly. No shell config is changed automatically.
 
+**Choosing profiles:** an interactive install without `--profiles` prints a numbered checklist with your saved or detected profiles pre-checked. Press **Enter** to accept them, type numbers or ranges (`1,3-4`) to change the selection, or `a` to select all five. The prompt appears only when both stdin and stdout are terminals, so `curl | bash`, CI, and piped runs use the detected defaults without asking.
+
+**Quiet installs:** `--quiet`, `-q`, `--silent`, `-s`, `--yes`, and `-y` all do the same thing — skip the checklist, accept detected defaults, and print no progress lines. Failures still go to stderr, including buffered upstream output.
+
 ## Daily use
 
 | Command | What it does |
@@ -59,6 +63,9 @@ agentic skills install
 # Add/remove ad-hoc skills through the established upstream manager:
 agentic skills add owner/repo --skill example --user
 agentic skills remove example --user
+
+# Unattended: no checklist, no progress lines, detected defaults only:
+agentic --user --quiet
 ```
 
 Ad-hoc add/remove commands do not edit the manifest. Removing a skill still declared in a selected profile is temporary: the next install restores it. Install/update commands never prune skills outside the selected profiles; `skills update` updates **all installed skills in that scope**, including ad-hoc skills.

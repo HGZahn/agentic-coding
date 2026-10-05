@@ -28,6 +28,7 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.NPX_LOG, JSON.stringify({ args, cwd: process.cwd() }) + '\\n');
 if (process.env.NPX_FAIL) { console.error('simulated upstream failure'); process.exit(7); }
 const command = args[2];
+if (command === 'list') console.log('stub list output');
 const target = args.includes('--global') ? process.env.HOME : process.cwd();
 if (command === 'add') {
   const i = args.indexOf('--skill');
@@ -63,6 +64,8 @@ if (command === 'add') {
 }
 function ok(result) { assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`); }
 function bad(result, pattern) { assert.notEqual(result.status, 0); assert.match(result.stderr, pattern); }
+// Skills are batched one upstream call per source/ref/path, so a skill can land in any call.
+const requested = (f, name) => f.calls().some(call => call.args.includes(name));
 
 test('help is available without writes or npx', t => {
   const f = fixture(t);
@@ -373,4 +376,96 @@ test('bootstrap never overwrites unrelated directories', t => {
   put(path.join(install, 'keep'), 'keep');
   bad(f.run(['--no-skills'], { entry: 'get-started.sh', environment: { AGENTIC_HOME: install } }), /Not an installer checkout/);
   assert.equal(fs.readFileSync(path.join(install, 'keep'), 'utf8'), 'keep');
+});
+
+function shq(value) { return `'${value.replace(/'/g, `'\\''`)}'`; }
+// Runs the installer behind a pseudo-terminal so the checklist reads real TTY input.
+// A trailing sleep keeps the pipe open; closing stdin immediately can race the pty relay.
+function ptyInstall(t, f, input, args) {
+  if (process.platform !== 'linux' || spawnSync('sh', ['-c', 'command -v script'], { encoding: 'utf8' }).status !== 0) {
+    t.skip('interactive checklist test needs Linux script(1)');
+  }
+  const command = `cd ${shq(f.home)} && bash ${shq(path.join(root, 'agentic'))} ${args.join(' ')}`;
+  const inner = `{ printf '%s' "$AGT_TUI_INPUT"; sleep 1; } | script -qec ${shq(command)} /dev/null`;
+  return spawnSync('bash', ['-c', inner], { env: { ...f.env, AGT_TUI_INPUT: input }, encoding: 'utf8', timeout: 20000 });
+}
+
+test('help documents the checklist and quiet flags', t => {
+  const f = fixture(t);
+  const result = f.run(['--help']);
+  ok(result);
+  assert.match(result.stdout, /--quiet, -q/);
+  assert.match(result.stdout, /--silent, -s, --yes, -y/);
+  assert.match(result.stdout, /profile checklist/);
+});
+
+test('quiet aliases accept detected defaults and print no progress', t => {
+  const f = fixture(t);
+  for (const flag of ['-q', '--silent', '-s', '--yes', '-y']) {
+    const result = f.run(['skills', 'install', '--user', '--profiles', 'pythondev', flag]);
+    ok(result);
+    assert.equal(result.stdout, '');
+    assert.ok(requested(f, 'uv'));
+  }
+  ok(f.run(['skills', 'list', '--user', '--quiet']));
+  assert.match(f.calls().at(-1).args.join(' '), /list/);
+  assert.match(f.run(['skills', 'list', '--user', '--quiet']).stdout, /stub list output/);
+});
+
+test('--quiet installs silently and still reports buffered upstream failures', t => {
+  const f = fixture(t);
+  ok(f.run(['--user', '--quiet', '--profiles', 'pythondev']));
+  assert.equal(f.run(['--user', '--quiet', '--no-skills']).stdout, '');
+  assert.equal(fs.readlinkSync(path.join(f.home, 'AGENTS.md')), path.join(root, 'home/AGENTS.md'));
+  const saved = fs.readFileSync(path.join(f.home, '.config/agentic-coding/config.json'), 'utf8');
+  const failure = f.run(['skills', 'install', '--user', '--profiles', 'gamedev'], { environment: { NPX_FAIL: '1' } });
+  assert.notEqual(failure.status, 0);
+  assert.match(failure.stderr, /npx failed \(exit 7\)/);
+  assert.match(failure.stderr, /simulated upstream failure/);
+  assert.equal(fs.readFileSync(path.join(f.home, '.config/agentic-coding/config.json'), 'utf8'), saved);
+});
+
+test('non-TTY installs never prompt and keep detected profiles', t => {
+  const f = fixture(t);
+  put(path.join(f.project, 'pyproject.toml'));
+  f.git(['init', '-q']);
+  const result = f.run(['--project', f.project, '--no-skills', '--dry-run']);
+  ok(result);
+  assert.match(result.stdout, /Profiles: base, pythondev/);
+  assert.ok(!result.stdout.includes('Select skill profiles'));
+});
+
+test('interactive install shows the checklist and Enter keeps detected profiles', t => {
+  const f = fixture(t);
+  const result = ptyInstall(t, f, '\n', ['install', '--user', '--agents', 'pi']);
+  ok(result);
+  assert.match(result.stdout, /Select skill profiles to install/);
+  assert.match(result.stdout, /\[x\] 1\) base/);
+  assert.ok(requested(f, '5whys'));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.home, '.config/agentic-coding/config.json'), 'utf8')).profiles, ['base']);
+});
+
+test('the checklist applies typed numbers and remembers them', t => {
+  const f = fixture(t);
+  const result = ptyInstall(t, f, '2\n', ['install', '--user', '--agents', 'pi']);
+  ok(result);
+  assert.match(result.stdout, /Profiles: pythondev/);
+  assert.ok(requested(f, 'uv'));
+  assert.ok(!requested(f, '5whys'));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.home, '.config/agentic-coding/config.json'), 'utf8')).profiles, ['pythondev']);
+});
+
+test('the checklist supports selecting all profiles', t => {
+  const f = fixture(t);
+  const result = ptyInstall(t, f, 'a\n', ['install', '--user', '--agents', 'pi']);
+  ok(result);
+  assert.match(result.stdout, /Profiles: base, pythondev, devops, gamedev, creative/);
+});
+
+test('--quiet skips the checklist even on a TTY', t => {
+  const f = fixture(t);
+  const result = ptyInstall(t, f, '2\n', ['install', '--user', '--agents', 'pi', '--quiet']);
+  ok(result);
+  assert.ok(!result.stdout.includes('Select skill profiles'));
+  assert.ok(requested(f, '5whys'));
 });

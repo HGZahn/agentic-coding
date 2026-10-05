@@ -21,7 +21,7 @@ Why not migrate to chezmoi or Dotbot now? Neither replaces a skill manager or ha
 
 ## Fixed failure modes
 
-The old script retained `--check` literally but compared it with `check`, so the advertised check mode actually applied files. It also prompted for skills in explicitly non-interactive modes, ignored unknown profiles, and duplicated the manifest-install loop for personal/project scope.
+The old script retained `--check` literally but compared it with `check`, so the advertised check mode actually applied files. It also prompted for skills in explicitly non-interactive modes (now the checklist requires a real terminal and can be declined with quiet flags), ignored unknown profiles, and duplicated the manifest-install loop for personal/project scope.
 
 The old curl bootstrap extracted into a temporary directory, installed symlinks into it, then removed the directory. The new bootstrap retains a Git clone and verifies its origin, branch, and clean working tree before updating it.
 
@@ -37,6 +37,22 @@ Checks/previews do not call upstream installers. Actual file installs preflight 
 
 Skill reconciliation adds/refreshes the selected profiles; it does not implement destructive pruning. Ad-hoc installations are handled by upstream lockfiles, not copied into a second custom catalog. Project preferences and upstream `skills-lock.json` can be committed when sharing the setup with a team. Review upstream-generated skill files/symlinks before committing them.
 
+## Interactive selection and quiet mode
+
+Profiles are the selection unit; agents stay a flag (or saved preference). An install run (plain `agentic`, `agentic update`, or `agentic skills install`) that has no `--profiles` shows a numbered checklist with the saved-or-detected profiles pre-checked:
+
+```
+Select skill profiles to install (Enter keeps the current selection):
+  [x] 1) base        [ ] 2) pythondev   [ ] 3) devops
+  [ ] 4) gamedev     [ ] 5) creative
+Numbers or ranges (1,3-4), "a" for all, Enter to accept:
+```
+
+- **Enter / EOF** keeps the pre-checked selection; `a` selects all profiles; numbers and ranges toggle explicit choices; malformed or reversed input re-prompts.
+- The prompt is written to stderr and only appears when **both** stdin and stdout are terminals. This keeps CI, tests, and piped runs from hanging, and it is why `get-started.sh` reattaches `/dev/tty` to the **child** process's stdin rather than `exec`-ing it in the bootstrap shell (the rest of a `curl | bash` script still has to read from the pipe).
+- `--quiet`, `-q`, `--silent`, `-s`, `--yes`, and `-y` are one behavior with several spellings: skip the checklist, accept detected defaults, and suppress `agentic`'s own progress/summary lines. Upstream output is buffered in this mode and printed only if the command fails, so quiet runs stay silent on success but still explain failures. `skills list` and `skills find` always stream their primary output; `doctor`'s result line and `--help` are never silenced.
+- `--profiles` always wins and never prompts, as does a saved preference when no flag is given (Enter accepts it).
+
 ## Requested source choices
 
 - **Explain / Logo Design:** target the exact skill directory so unrelated repository contents are not selected.
@@ -46,7 +62,7 @@ Skill reconciliation adds/refreshes the selected profiles; it does not implement
 
 ## Verification and limits
 
-`node --test tests/*.test.mjs` uses isolated homes/projects, a stub `npx`, and local Git remotes. It covers scope detection, profiles, batching, preference persistence, dry-run, read-only checks, conflict backups, error propagation, installed launcher resolution, and persistent bootstrap/update behavior. CI runs it on Linux and macOS with Node 22.
+`node --test tests/*.test.mjs` uses isolated homes/projects, a stub `npx`, and local Git remotes. It covers scope detection, profiles, batching, preference persistence, dry-run, read-only checks, conflict backups, error propagation, installed launcher resolution, persistent bootstrap/update behavior, and the quiet/checklist behavior (non-TTY detection, aliases, buffered failure output, and pty-driven Enter/number/all selections). CI runs it on Linux and macOS with Node 22.
 
 The real `skills@1.7.0` CLI was also exercised with the local `gpt-imagegen` skill in temporary personal/project scopes: installs preserve scripts, agent symlinks resolve, listings work, and project update scope is accepted. Requested skill names/paths were checked against upstream `SKILL.md` frontmatter. This is not a security audit of third-party workflows or an end-to-end test of video/image/game generation.
 
