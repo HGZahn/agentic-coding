@@ -3,28 +3,40 @@ node = "lts"
 
 [tasks.setup]
 description = "Dotfiles: link home/ to $HOME"
-run = "./setup.sh --user --no-skills"
+run = "./agentic install --user --no-skills"
 
 [tasks.setup-all]
 description = "Dotfiles + global skills"
-run = "./setup.sh --user"
+run = "./agentic install --user"
 
 [tasks.doctor]
 description = "Report drift without changing"
-run = "./setup.sh --user --check --no-skills"
+run = "./agentic doctor --user"
 
 [tasks.skills-update]
 description = "Update all global skills"
-run = "npx skills update -g -y"
+run = "./agentic skills update --user"
 
 [tasks.skills-list]
 description = "List installed global skills"
-run = "npx skills list -g"
+run = "./agentic skills list --user"
 
 [tasks.init]
-description = "Init project template in cwd"
-run = "./setup.sh --project"
+description = "Init a project: mise run init /path/to/repo"
+run = "./agentic install --project"
 
 [tasks.init-local]
-description = "Init project in cwd with local skills"
-run = "./setup.sh --project --no-skills 2>/dev/null; ./setup.sh --project --profiles base --agents pi && echo 'Now approve project trust in pi'"
+description = "Init a project with Pi skills: mise run init-local /path/to/repo"
+run = "./agentic install --agents pi --project"
+
+[tasks.update]
+description = "Fast-forward installer checkout, then sync personal config and skills"
+run = "./agentic update --user"
+
+[tasks.profiles]
+description = "Show available skill profiles"
+run = "./agentic profiles"
+
+[tasks.test]
+description = "Run isolated installer and bootstrap regression tests"
+run = "node --test tests/*.test.mjs"

@@ -3,6 +3,7 @@
     "base": [
       "5whys",
       "agent-browser",
+      "explain",
       "gpt-imagegen",
       "grill-me",
       "i-have-adhd",
@@ -21,8 +22,24 @@
       "gpt-imagegen"
     ],
     "gamedev": [
+      "dream-loop",
       "gpt-imagegen",
       "godot-master"
+    ],
+    "creative": [
+      "dream-loop",
+      "gpt-imagegen",
+      "hyperframes",
+      "hyperframes-animation",
+      "hyperframes-audio",
+      "hyperframes-cli",
+      "hyperframes-core",
+      "hyperframes-creative",
+      "hyperframes-keyframes",
+      "hyperframes-registry",
+      "hyperframes-studio",
+      "logo-design",
+      "media-use"
     ]
   },
   "skills": {
@@ -32,9 +49,19 @@
     "agent-browser": {
       "source": "vercel-labs/agent-browser"
     },
-    "godot-master": {
-      "source": "thedivergentai/gd-agentic-skills",
+    "dream-loop": {
+      "source": "achimala/dream-loop",
       "ref": "main"
+    },
+    "explain": {
+      "source": "ARYANK-08/agentic-dev-kit",
+      "ref": "main",
+      "path": "skills/explain"
+    },
+    "godot-master": {
+      "source": "thedivergentai/GD-Agentic-Skills",
+      "ref": "main",
+      "path": "skills/godot-master"
     },
     "gpt-imagegen": {
       "source": "local",
@@ -44,8 +71,53 @@
       "source": "mattpocock/skills",
       "ref": "main"
     },
+    "hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-animation": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-audio": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-cli": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-core": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-creative": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-keyframes": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-registry": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
+    "hyperframes-studio": {
+      "source": "heygen-com/hyperframes",
+      "ref": "main"
+    },
     "i-have-adhd": {
       "source": "ayghri/i-have-adhd",
+      "ref": "main"
+    },
+    "logo-design": {
+      "source": "kaankiziltug/logo-design-skill",
+      "ref": "main",
+      "path": "skills/logo-design"
+    },
+    "media-use": {
+      "source": "heygen-com/hyperframes",
       "ref": "main"
     },
     "ponytail": {
