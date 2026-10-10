@@ -1,6 +1,0 @@
-{
-  "hideThinkingBlock": false,
-  "enableSkillCommands": true,
-  "packages": ["pi-reasonix"],
-  "theme": "agentic"
-}
