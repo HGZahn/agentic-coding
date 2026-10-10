@@ -11,7 +11,7 @@ const skillsCLI = 'skills@1.7.0';
 const help = `Usage: agentic [command] [options]
 
 Commands:
-  install             Sync dotfiles/project template + selected skills (default)
+  install             Sync selected skills for the detected scope (default)
   update              Fast-forward this installer checkout, then install
   doctor              Check local drift and prerequisites; never write or fetch
   profiles            Show the skill profiles in skills.manifest.json
@@ -30,11 +30,11 @@ Options:
   --quiet, -q          No profile prompt and no progress output; use detected defaults
   --silent, -s, --yes, -y
                        Aliases of --quiet
-  --no-skills          Install/check dotfiles or templates only
-  --dry-run           Preview paths and commands without writing or fetching
-  --adopt             Back up conflicting files to .bak.<timestamp> before replacing
-  --check             Alias for doctor (legacy setup.sh flag)
-  --apply             Apply changes (legacy setup.sh flag; already the default)
+  --no-skills          No-op compatibility flag: this checkout ships no dotfiles/templates
+  --dry-run           Preview the upstream commands without writing or fetching
+  --adopt             Accepted for compatibility; no files to back up
+  --check             Alias for doctor
+  --apply             Accepted for compatibility; already the default
   --help, -h          Show help
 
 Auto scope: this checkout or outside a project -> user; another project -> project root.
@@ -242,8 +242,11 @@ function files(dir) {
     return entry.isDirectory() ? files(file) : [file];
   });
 }
+// This checkout ships skills only: there is no home/ or template/ payload to sync.
+// A missing directory is an empty plan, not an error, so skills installs keep working.
 function filePlan(scope, target) {
   const dir = path.join(root, scope === 'user' ? 'home' : 'template/project');
+  if (!fs.existsSync(dir)) return [];
   return files(dir).map(src => {
     const dst = path.join(target, path.relative(dir, src));
     let stat;
@@ -336,6 +339,6 @@ function main() {
     if (!options.dryRun) saveSettings(config);
   }
   log(options.dryRun ? 'Preview only: nothing written or fetched.' : 'Done. Restart your coding agent to load newly installed skills.');
-  if (scope === 'user' && options.command === 'install' && !(process.env.PATH || '').split(path.delimiter).includes(path.join(home, '.local/bin'))) log('To use agentic by name, add this to your shell config: export PATH="$HOME/.local/bin:$PATH"');
+  // Nothing is linked onto PATH anymore; the bootstrap prints the command to re-run.
 }
 try { main(); } catch (error) { console.error(`Error: ${error.message}`); process.exitCode = 1; }

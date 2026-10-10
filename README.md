@@ -23,17 +23,17 @@ Requires **Git and Node ≥22.20.0 with npm/npx**. Bash is used by the launchers
 curl -fsSL https://raw.githubusercontent.com/HGZahn/agentic-coding/master/get-started.sh | bash
 ```
 
-The bootstrap keeps a Git checkout at `~/.local/share/agentic-coding` (`$XDG_DATA_HOME/agentic-coding` when set). It does not delete the source of your symlinks. Override it with `AGENTIC_HOME`; installer options can be passed through `bash -s -- --profiles base,creative,gamedev`.
+The bootstrap keeps a Git checkout at `~/.local/share/agentic-coding` (`$XDG_DATA_HOME/agentic-coding` when set). Override it with `AGENTIC_HOME`; installer options can be passed through `bash -s -- --profiles base,creative,gamedev`.
 
 **Already cloned this repo:**
 
 ```bash
 mise install                          # optional, if Node is already installed
-./agentic --user --dry-run             # inspect destinations and skill commands
-./agentic --user                       # install personal dotfiles + base skills
+./agentic --user --dry-run             # inspect the skill commands
+./agentic --user                       # install personal skills (base)
 ```
 
-The personal install links `agentic` into `~/.local/bin`. If that directory is not on your PATH, add `export PATH="$HOME/.local/bin:$PATH"` to your shell config. Until then, use `~/.local/bin/agentic` directly. No shell config is changed automatically.
+Run the command from the retained checkout, e.g. `bash ~/.local/share/agentic-coding/agentic --user`. Nothing is linked onto your PATH.
 
 **Choosing profiles:** an interactive install without `--profiles` prints a numbered checklist with your saved or detected profiles pre-checked. Press **Enter** to accept them, type numbers or ranges (`1,3-4`) to change the selection, or `a` to select all five. The prompt appears only when both stdin and stdout are terminals, so `curl | bash`, CI, and piped runs use the detected defaults without asking.
 
@@ -115,10 +115,10 @@ Installing a skill does not install its runtime dependencies or provide paid API
 
 ## Safety and updates
 
-- `--dry-run`: print paths/commands; do not write files, save preferences, or invoke upstream installers.
-- `doctor` / legacy `--check`: offline/read-only; nonzero when files or selected skills are missing. Presence is not an upstream freshness check.
-- Existing personal files or changed project templates are **left untouched**, with a nonzero exit. Review them and use `--adopt` to make `.bak.<timestamp>` backups before replacement.
-- `--no-skills`: dotfiles/templates only; no upstream skill calls.
+- `--dry-run`: print the upstream commands; do not write files, save preferences, or invoke upstream installers.
+- `doctor` / legacy `--check`: offline/read-only; nonzero when a selected skill is missing. Presence is not an upstream freshness check.
+- Installs never touch your own `AGENTS.md` or project files; skills land under `.agents/skills/`.
+- `--no-skills`: accepted for compatibility; a no-op, since this checkout ships no dotfiles or templates.
 - `agentic update`: updates the **installer checkout**, never your project's Git history. Refuses local changes and uses `git pull --ff-only`.
 
 `agentic install` reconciles the selected manifest, including newly declared skills and the local image skill. `agentic skills update` delegates upstream updates; upstream skips local-path skills. Do not edit installed skill copies: updates may replace them. Edit the local source instead.
@@ -129,12 +129,11 @@ The Skills CLI is pinned to `1.7.0` so flags do not change unexpectedly. Upstrea
 
 | Path | Purpose |
 |------|---------|
-| `home/` | Mirrors `$HOME`; symlinked, never copied. Includes the installed command. |
-| `template/project/` | Project starter files; copied, never linked. |
+| `home/`, `template/project/` | Removed in the `cleanup` commit; this checkout installs skills only. |
 | `skills.manifest.json` | Curated profiles and upstream sources. |
 | `skills/gpt-imagegen/` | Only local skill. |
 | `scripts/agentic.mjs` | Thin installer/profile orchestration, using Node's standard library. |
-| `agentic` / `setup.sh` / `get-started.sh` | CLI launcher, legacy compatibility, persistent bootstrap. |
+| `agentic` / `get-started.sh` | CLI launcher and persistent bootstrap. |
 | `tests/installer.test.mjs` | Network-free tests with temporary homes/projects and a stub upstream CLI. |
 
 ```bash
@@ -143,7 +142,7 @@ mise run setup-all    # dotfiles + selected personal skills
 mise run test         # or: node --test tests/*.test.mjs
 ```
 
-Old `./setup.sh --user`, `--project`, `--check`, `--apply`, and `--adopt` invocations still work. See `agentic --help` and [the installer design notes](docs/installer.md) for the comparison with larger projects and scope/update boundaries.
+Legacy flags `--check`, `--apply`, `--adopt`, and `--no-skills` are still accepted. `--check` aliases `doctor`; the others are no-ops, since there are no dotfiles or templates left to replace. See `agentic --help`.
 
 ## License
 

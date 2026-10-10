@@ -57,7 +57,10 @@ if (command === 'add') {
   function checkout() {
     const source = path.join(temp, 'checkout');
     fs.mkdirSync(source);
-    for (const file of ['agentic', 'setup.sh', 'get-started.sh', 'skills.manifest.json', 'scripts', 'home', 'skills', 'template']) fs.cpSync(path.join(root, file), path.join(source, file), { recursive: true });
+    // This checkout is skills-only; copy whatever payload actually exists.
+    for (const file of ['agentic', 'setup.sh', 'get-started.sh', 'skills.manifest.json', 'scripts', 'home', 'skills', 'template']) {
+      if (fs.existsSync(path.join(root, file))) fs.cpSync(path.join(root, file), path.join(source, file), { recursive: true });
+    }
     return source;
   }
   return { temp, home, project, outside, log, env, run, calls, git, checkout };
@@ -74,22 +77,13 @@ test('help is available without writes or npx', t => {
   assert.equal(f.calls().length, 0);
 });
 
-test('legacy --check is read-only and reports missing links', t => {
+test('skills install is the default command and is repeatable', t => {
   const f = fixture(t);
-  bad(f.run(['--user', '--check', '--no-skills'], { entry: 'setup.sh' }), /missing:/);
-  assert.deepEqual(fs.readdirSync(f.home), []);
-  assert.equal(f.calls().length, 0);
-});
-
-test('personal install links every home file, including the working command, and is repeatable', t => {
-  const f = fixture(t);
-  ok(f.run(['--user', '--no-skills']));
-  const installed = path.join(f.home, '.local/bin/agentic');
-  assert.equal(fs.readlinkSync(installed), path.join(root, 'home/.local/bin/agentic'));
-  assert.equal(fs.readlinkSync(path.join(f.home, 'AGENTS.md')), path.join(root, 'home/AGENTS.md'));
-  ok(f.run(['--user', '--no-skills']));
-  ok(f.run(['doctor', '--user', '--no-skills']));
-  const result = spawnSync(installed, ['profiles'], { env: f.env, cwd: f.outside, encoding: 'utf8' });
+  ok(f.run(['--user', '--profiles', 'pythondev']));
+  assert.ok(fs.existsSync(path.join(f.home, '.agents/skills/uv/SKILL.md')));
+  ok(f.run(['--user']));
+  ok(f.run(['doctor', '--user']));
+  const result = spawnSync('bash', [path.join(root, 'agentic'), 'profiles'], { env: f.env, cwd: f.outside, encoding: 'utf8' });
   ok(result);
   assert.match(result.stdout, /creative/);
 });
@@ -97,7 +91,7 @@ test('personal install links every home file, including the working command, and
 test('auto scope is personal in this checkout and outside projects', t => {
   const f = fixture(t);
   for (const cwd of [root, path.join(root, 'scripts'), f.home, f.outside]) {
-    const result = f.run(['--dry-run', '--no-skills'], { cwd });
+    const result = f.run(['--dry-run'], { cwd });
     ok(result);
     assert.match(result.stdout, /Scope: user/);
   }
@@ -109,74 +103,65 @@ test('auto scope finds another Git project root from a subdirectory', t => {
   f.git(['init', '-q']);
   const sub = path.join(f.project, 'src/sub');
   fs.mkdirSync(sub, { recursive: true });
-  const result = f.run(['--no-skills'], { cwd: sub });
+  const result = f.run(['--dry-run'], { cwd: sub });
   ok(result);
   assert.match(result.stdout, /Scope: project/);
-  assert.ok(fs.existsSync(path.join(f.project, 'AGENTS.md')));
-  assert.ok(!fs.existsSync(path.join(sub, 'AGENTS.md')));
+  assert.ok(result.stdout.includes(`Target: ${f.project}`));
   assert.deepEqual(fs.readdirSync(f.home), []);
 });
 
-test('explicit project scope copies templates, never symlinks, and supports --apply', t => {
+test('project installs stay inside the project root', t => {
   const f = fixture(t);
-  ok(f.run(['--project', f.project, '--apply', '--no-skills'], { entry: 'setup.sh' }));
-  const file = path.join(f.project, 'AGENTS.md');
-  assert.ok(!fs.lstatSync(file).isSymbolicLink());
-  assert.equal(fs.readFileSync(file, 'utf8'), fs.readFileSync(path.join(root, 'template/project/AGENTS.md'), 'utf8'));
-  ok(f.run(['--project', f.project, '--no-skills']));
-  ok(f.run(['--project', f.project, '--check', '--no-skills']));
+  f.git(['init', '-q']);
+  const sub = path.join(f.project, 'src/sub');
+  fs.mkdirSync(sub, { recursive: true });
+  ok(f.run(['--project', f.project, '--profiles', 'pythondev']));
+  assert.ok(fs.existsSync(path.join(f.project, '.agents/skills/uv/SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(sub, '.agents')));
+  assert.ok(f.calls().every(call => call.cwd === f.project));
 });
 
 test('explicit project without a directory uses cwd even without Git', t => {
   const f = fixture(t);
-  ok(f.run(['--project', '--no-skills'], { cwd: f.project }));
-  assert.ok(fs.existsSync(path.join(f.project, '.pi/settings.json')));
+  ok(f.run(['skills', 'install', '--project', '--profiles', 'pythondev'], { cwd: f.project }));
+  assert.ok(fs.existsSync(path.join(f.project, '.agents/skills/uv/SKILL.md')));
+  assert.ok(f.calls().every(call => call.cwd === f.project));
 });
 
 test('explicit personal scope wins inside a project', t => {
   const f = fixture(t);
   f.git(['init', '-q']);
-  ok(f.run(['--user', '--no-skills'], { cwd: f.project }));
-  assert.ok(fs.lstatSync(path.join(f.home, 'AGENTS.md')).isSymbolicLink());
-  assert.ok(!fs.existsSync(path.join(f.project, 'AGENTS.md')));
+  ok(f.run(['--user', '--profiles', 'pythondev'], { cwd: f.project }));
+  assert.ok(fs.existsSync(path.join(f.home, '.agents/skills/uv/SKILL.md')));
+  assert.ok(!fs.existsSync(path.join(f.project, '.agents')));
+  assert.ok(f.calls().every(call => call.cwd === f.home));
 });
 
-test('conflicts are preflighted: nothing changes unless adoption is explicit', t => {
+test('personal preferences are never overwritten by project runs', t => {
   const f = fixture(t);
-  put(path.join(f.home, 'AGENTS.md'), 'my instructions');
-  bad(f.run(['--user', '--no-skills']), /Conflicts left untouched/);
-  assert.deepEqual(fs.readdirSync(f.home), ['AGENTS.md']);
-  assert.equal(fs.readFileSync(path.join(f.home, 'AGENTS.md'), 'utf8'), 'my instructions');
-  assert.equal(f.calls().length, 0);
+  f.git(['init', '-q']);
+  ok(f.run(['skills', 'install', '--user', '--profiles', 'pythondev', '--agents', 'codex']));
+  const config = path.join(f.home, '.config/agentic-coding/config.json');
+  const saved = fs.readFileSync(config, 'utf8');
+  ok(f.run(['skills', 'install', '--project', f.project]));
+  assert.equal(fs.readFileSync(config, 'utf8'), saved);
 });
 
-test('adoption backs up conflicts without losing their contents', t => {
+test('project preferences are stored in the project, not the home directory', t => {
   const f = fixture(t);
-  put(path.join(f.project, 'AGENTS.md'), 'custom instructions');
-  ok(f.run(['--project', f.project, '--adopt', '--no-skills']));
-  const backups = fs.readdirSync(f.project).filter(file => file.startsWith('AGENTS.md.bak.'));
-  assert.equal(backups.length, 1);
-  assert.equal(fs.readFileSync(path.join(f.project, backups[0]), 'utf8'), 'custom instructions');
-  ok(f.run(['doctor', '--project', f.project, '--no-skills']));
+  f.git(['init', '-q']);
+  ok(f.run(['skills', 'install', '--project', f.project, '--profiles', 'pythondev']));
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(f.project, '.agents/agentic.json'), 'utf8')).profiles, ['pythondev']);
+  assert.ok(!fs.existsSync(path.join(f.home, '.config/agentic-coding/config.json')));
 });
 
-test('broken symlinks are reported as conflicts, not silently overwritten', t => {
+test('dry-run previews upstream commands without writing files, config, or calling npx', t => {
   const f = fixture(t);
-  fs.symlinkSync('/missing-agentic-test-target', path.join(f.home, 'AGENTS.md'));
-  bad(f.run(['--user', '--no-skills']), /Conflicts/);
-  ok(f.run(['--user', '--adopt', '--no-skills']));
-  assert.ok(fs.readdirSync(f.home).some(name => name.startsWith('AGENTS.md.bak.')));
-});
-
-test('dry-run previews backups and upstream commands without files, config, or npx', t => {
-  const f = fixture(t);
-  put(path.join(f.project, 'AGENTS.md'), 'keep me');
-  const result = f.run(['--project', f.project, '--profiles', 'base,creative,gamedev', '--adopt', '--dry-run']);
+  const result = f.run(['--project', f.project, '--profiles', 'base,creative,gamedev', '--dry-run']);
   ok(result);
-  assert.match(result.stdout, /backup:/);
   assert.match(result.stdout, /skills@1\.7\.0 add/);
-  assert.deepEqual(fs.readdirSync(f.project), ['AGENTS.md']);
-  assert.equal(fs.readFileSync(path.join(f.project, 'AGENTS.md'), 'utf8'), 'keep me');
+  assert.match(result.stdout, /dry run/);
+  assert.deepEqual(fs.readdirSync(f.project), ['.git'].filter(() => false));
   assert.deepEqual(fs.readdirSync(f.home), []);
   assert.equal(f.calls().length, 0);
 });
@@ -192,14 +177,15 @@ for (const args of [['--oops'], ['--profiles'], ['--agents'], ['--profiles', 'ba
   });
 }
 
-test('unknown skills in the manifest fail before applying files', t => {
+test('unknown skills in the manifest fail before installing anything', t => {
   const f = fixture(t);
   const source = f.checkout();
   const invalid = structuredClone(m);
   invalid.profiles.base.push('does-not-exist');
   put(path.join(source, 'skills.manifest.json'), JSON.stringify(invalid));
-  bad(f.run(['--user', '--no-skills'], { source }), /Invalid profile/);
+  bad(f.run(['--user'], { source }), /Invalid profile/);
   assert.deepEqual(fs.readdirSync(f.home), []);
+  assert.equal(f.calls().length, 0);
 });
 
 test('local path traversal in the manifest is rejected', t => {
@@ -292,7 +278,6 @@ test('upstream failure propagates and does not save a successful selection', t =
 
 test('doctor checks selected skill presence offline, succeeds after sync, and never calls npx', t => {
   const f = fixture(t);
-  ok(f.run(['--user', '--no-skills']));
   bad(f.run(['doctor', '--user', '--profiles', 'pythondev']), /missing skill: uv/);
   assert.equal(f.calls().length, 0);
   ok(f.run(['skills', 'install', '--user', '--profiles', 'pythondev']));
@@ -327,7 +312,7 @@ test('update refuses dirty installer checkouts instead of touching project Git h
   assert.equal(f.calls().length, 0);
 });
 
-test('update only fast-forwards the installer, then reloads and applies its new files', t => {
+test('update only fast-forwards the installer, then reloads and installs with the new files', t => {
   const f = fixture(t);
   const source = f.checkout();
   f.git(['init', '-q', '-b', 'master'], source);
@@ -338,19 +323,23 @@ test('update only fast-forwards the installer, then reloads and applies its new 
   const installed = path.join(f.temp, 'installed');
   f.git(['clone', '-q', remote, installed]);
   f.git(['remote', 'add', 'origin', remote], source);
-  put(path.join(source, 'home/new-file'), 'new upstream file');
+  // A new skill in the manifest proves the update reloaded upstream's files.
+  const manifest = JSON.parse(fs.readFileSync(path.join(source, 'skills.manifest.json'), 'utf8'));
+  manifest.profiles.pythondev.push('new-skill');
+  manifest.skills['new-skill'] = { source: 'owner/new-skill' };
+  put(path.join(source, 'skills.manifest.json'), JSON.stringify(manifest));
   f.git(['add', '.'], source);
-  f.git(['-c', 'user.name=Test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'new dotfile'], source);
+  f.git(['-c', 'user.name=Test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'new skill'], source);
   f.git(['push', '-q', 'origin', 'master'], source);
   f.git(['init', '-q'], f.project);
-  const result = f.run(['update', '--user', '--no-skills'], { source: installed, cwd: f.project });
+  const result = f.run(['update', '--user', '--profiles', 'pythondev'], { source: installed, cwd: f.project });
   ok(result);
-  assert.equal(fs.readFileSync(path.join(f.home, 'new-file'), 'utf8'), 'new upstream file');
+  assert.ok(requested(f, 'new-skill'), 'update must reload the new manifest');
   assert.equal(f.git(['rev-parse', 'HEAD'], installed), f.git(['rev-parse', 'HEAD'], source));
   assert.deepEqual(fs.readdirSync(f.project), ['.git']);
 });
 
-test('bootstrap retains its checkout and usable symlinks; repeat runs are safe', t => {
+test('bootstrap retains its checkout and installs skills; repeat runs are safe', t => {
   const f = fixture(t);
   const source = f.checkout();
   f.git(['init', '-q', '-b', 'master'], source);
@@ -358,15 +347,13 @@ test('bootstrap retains its checkout and usable symlinks; repeat runs are safe',
   f.git(['-c', 'user.name=Test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'initial'], source);
   const install = path.join(f.temp, 'persistent checkout');
   const environment = { AGENTIC_REPO_URL: source, AGENTIC_HOME: install, REF: 'master' };
-  ok(f.run(['--no-skills'], { entry: 'get-started.sh', cwd: f.outside, environment }));
+  ok(f.run(['--profiles', 'pythondev'], { entry: 'get-started.sh', cwd: f.outside, environment }));
   assert.ok(fs.existsSync(path.join(install, '.git')));
-  assert.equal(fs.readFileSync(path.join(f.home, 'AGENTS.md'), 'utf8'), fs.readFileSync(path.join(root, 'home/AGENTS.md'), 'utf8'));
-  assert.ok(fs.readlinkSync(path.join(f.home, 'AGENTS.md')).startsWith(install));
-  const command = path.join(f.home, '.local/bin/agentic');
-  ok(spawnSync(command, ['doctor', '--user', '--no-skills'], { env: f.env, cwd: f.outside, encoding: 'utf8' }));
-  ok(f.run(['--no-skills'], { entry: 'get-started.sh', cwd: f.outside, environment }));
+  assert.ok(fs.existsSync(path.join(f.home, '.agents/skills/uv/SKILL.md')));
+  ok(spawnSync('bash', [path.join(install, 'agentic'), 'doctor', '--user'], { env: f.env, cwd: f.outside, encoding: 'utf8' }));
+  ok(f.run(['--profiles', 'pythondev'], { entry: 'get-started.sh', cwd: f.outside, environment }));
   put(path.join(install, 'dirty'), 'keep');
-  bad(f.run(['--no-skills'], { entry: 'get-started.sh', cwd: f.outside, environment }), /Local changes/);
+  bad(f.run(['--profiles', 'pythondev'], { entry: 'get-started.sh', cwd: f.outside, environment }), /Local changes/);
   assert.equal(fs.readFileSync(path.join(install, 'dirty'), 'utf8'), 'keep');
 });
 
@@ -374,7 +361,7 @@ test('bootstrap never overwrites unrelated directories', t => {
   const f = fixture(t);
   const install = path.join(f.temp, 'occupied');
   put(path.join(install, 'keep'), 'keep');
-  bad(f.run(['--no-skills'], { entry: 'get-started.sh', environment: { AGENTIC_HOME: install } }), /Not an installer checkout/);
+  bad(f.run([], { entry: 'get-started.sh', environment: { AGENTIC_HOME: install } }), /Not an installer checkout/);
   assert.equal(fs.readFileSync(path.join(install, 'keep'), 'utf8'), 'keep');
 });
 
@@ -416,7 +403,7 @@ test('--quiet installs silently and still reports buffered upstream failures', t
   const f = fixture(t);
   ok(f.run(['--user', '--quiet', '--profiles', 'pythondev']));
   assert.equal(f.run(['--user', '--quiet', '--no-skills']).stdout, '');
-  assert.equal(fs.readlinkSync(path.join(f.home, 'AGENTS.md')), path.join(root, 'home/AGENTS.md'));
+  assert.ok(fs.existsSync(path.join(f.home, '.agents/skills/uv/SKILL.md')));
   const saved = fs.readFileSync(path.join(f.home, '.config/agentic-coding/config.json'), 'utf8');
   const failure = f.run(['skills', 'install', '--user', '--profiles', 'gamedev'], { environment: { NPX_FAIL: '1' } });
   assert.notEqual(failure.status, 0);

@@ -2,15 +2,15 @@
 node = "lts"
 
 [tasks.setup]
-description = "Dotfiles: link home/ to $HOME"
-run = "./agentic install --user --no-skills"
+description = "Install personal skills (alias of setup-all; kept for compatibility)"
+run = "./agentic install --user"
 
 [tasks.setup-all]
-description = "Dotfiles + global skills"
+description = "Install personal skills"
 run = "./agentic install --user"
 
 [tasks.doctor]
-description = "Report drift without changing"
+description = "Report missing skills without changing"
 run = "./agentic doctor --user"
 
 [tasks.skills-update]

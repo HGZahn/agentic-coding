@@ -47,10 +47,10 @@ done
 # controlling terminal, so hand the installer /dev/tty when one exists. Never reattach
 # bash's own stdin: the rest of this script may still be waiting in the pipe.
 if [[ -t 0 ]] || ! bash -c 'exec 0</dev/tty' 2>/dev/null; then
-  bash "$TARGET/setup.sh" "${SCOPE[@]}" "$@"
+  bash "$TARGET/agentic" "${SCOPE[@]}" "$@"
 else
-  bash "$TARGET/setup.sh" "${SCOPE[@]}" "$@" </dev/tty
+  bash "$TARGET/agentic" "${SCOPE[@]}" "$@" </dev/tty
 fi
 if [[ "$QUIET" -eq 0 ]]; then
-  printf '\nInstaller retained at %s\nNext: %s/.local/bin/agentic doctor\n' "$TARGET" "$HOME"
+  printf '\nInstaller retained at %s\nNext: bash %s/agentic doctor --user\n' "$TARGET" "$TARGET"
 fi
