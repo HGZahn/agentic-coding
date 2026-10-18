@@ -3,3 +3,6 @@ node_modules/
 *.log
 *.bak.*
 .pi/
+.zen-mitm-work/
+dsh-bundles/opencode-free-live/.free-models-cache.json
+dsh-bundles/opencode-free-live/.free-models-cache.json

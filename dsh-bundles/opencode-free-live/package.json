@@ -1,0 +1,9 @@
+{
+  "name": "dsh-plugin-opencode-free-live",
+  "version": "0.1.0",
+  "description": "DSH plugin exposing the 42 opencode FREE models via the local opencode serve bridge",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {}
+}
