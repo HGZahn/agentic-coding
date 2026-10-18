@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -32,6 +33,27 @@ export class ModelCatalog {
 
   constructor(options = {}) {
     this.#refreshSeconds = options.refreshSeconds ?? 300
+    // Seed synchronously from the on-disk snapshot BEFORE DSH reads the model
+    // list. Provenance: DSH calls listModels() the moment the adapter is
+    // registered, which happens before any awaited network fetch resolves, so
+    // an async-only load left the provider showing 0 models in the UI. Reading
+    // the cache here makes the 42 models available on the very first call; the
+    // network refresh in start() then updates them in the background.
+    this.#seedFromCache()
+  }
+
+  #seedFromCache() {
+    try {
+      const cached = JSON.parse(readFileSync(CACHE_FILE, 'utf-8'))
+      // Cache shape written by #refresh(): { free: { <id>: <meta> }, fetchedAt }.
+      const free = cached?.free ?? cached?.models ?? cached
+      if (free && typeof free === 'object' && Object.keys(free).length > 0) {
+        this.#models = new Map(Object.entries(free))
+        this.#updatedAt = cached?.fetchedAt ?? 0
+      }
+    } catch {
+      // No cache yet (first ever run) — start() will fetch it.
+    }
   }
 
   async start() {
