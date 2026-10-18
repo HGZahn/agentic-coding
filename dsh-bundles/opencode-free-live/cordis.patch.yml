@@ -9,6 +9,14 @@
 #   (a) as a bundle — add "dsh-plugin-opencode-free-live" (or the link: path)
 #       to dsh.profile.bundles in your profile's package.json; this patch is
 #       picked up automatically via package.json -> dsh.bundle.patch.
-#   (b) by hand — paste the entry below into your profile's cordis.patch.yml.
-- id: opencode-free-live
-  name: dsh-plugin-opencode-free-live
+#   (b) by hand — paste the `insert:` block below into your profile's
+#       cordis.patch.yml.
+#
+# PROVENANCE: a row-adding bundle patch must wrap its rows in `insert:`.
+# A bare top-level `- id: ...` list is the OVERRIDE form: the Loader looks for
+# an existing row with that id to patch, warns `entry "<id>" not found`, and
+# skips the row. That is a silent no-op for the plugin — the bundle loads, the
+# patch file is read, and nothing is ever mounted.
+- insert:
+    - id: opencode-free-live
+      name: dsh-plugin-opencode-free-live

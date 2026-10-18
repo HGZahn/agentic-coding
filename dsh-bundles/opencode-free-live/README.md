@@ -27,21 +27,58 @@ Then install the link and restart DSH:
 cd ~/.dsh/profiles/web && pnpm install
 ```
 
-`package.json` carries `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`, so the patch —
-`- id: opencode-free-live` / `name: dsh-plugin-opencode-free-live` — is picked up automatically;
-no absolute path is baked in. Activation requires a **DSH restart** to take effect.
+`package.json` carries `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`, so the patch is
+picked up automatically; no absolute path is baked in. Activation requires a **DSH restart** to
+take effect.
+
+Verify *before* restarting — this composes the real profile tree and prints the mounted row:
+
+```bash
+dsh --profile web --dump-config | grep -A2 opencode-free-live
+```
+
+Expected: a `# == dsh-plugin-opencode-free-live` banner followed by the row. If instead you see
+`patch: entry "opencode-free-live" not found`, see the dialect note below.
 
 <details>
-<summary>Alternative: paste the entry by hand</summary>
+<summary>Alternative: paste the rows by hand</summary>
 
 Add to your profile's `cordis.patch.yml`:
 
 ```yaml
-- id: opencode-free-live
-  name: dsh-plugin-opencode-free-live
+- insert:
+    - id: opencode-free-live
+      name: dsh-plugin-opencode-free-live
 ```
 
 </details>
+
+### Patch dialect — a bare list is a silent no-op
+
+A bundle patch that **adds** a row must wrap it in `insert:`. A bare top-level list item is the
+*override* form: the Loader searches for an existing row with that `id` to patch, and when none
+matches it warns and skips:
+
+```
+dsh: [dsh-plugin-opencode-free-live] patch: entry "opencode-free-live" not found
+```
+
+That is the failure mode to watch for, because it is close to silent: the bundle still loads, the
+patch file is still read, `pnpm install` still succeeds, and DSH still starts and serves the GUI —
+the provider simply never mounts, so it never reaches `ctx.llm.listProviders()`, never lands in the
+`ModelCatalog` groups, and the model selector shows nothing. Only `--dump-config` (or a provider
+list with zero opencode entries) reveals it.
+
+Two further activation facts worth knowing:
+
+- A bundle is **not loaded at all** unless its package name appears in `dsh.profile.bundles`. Adding
+  only the `dependencies` entry is insufficient.
+- `pnpm install` may report `Already up to date` without creating
+  `node_modules/dsh-plugin-opencode-free-live`. Confirm the link exists and resolves:
+
+  ```bash
+  ls -l ~/.dsh/profiles/web/node_modules/dsh-plugin-opencode-free-live
+  ```
 
 ## How it works
 
