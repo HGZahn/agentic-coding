@@ -141,6 +141,10 @@ export class OpenCodeFreeAdapter extends LlmAdapter {
       const inputs = Array.isArray(meta.modalities?.input) ? meta.modalities.input : ['text']
       return {
         id,
+        // dsh-llm validates each listed model against the registering provider
+        // (model.provider !== provider -> LlmError INVALID_CATALOG), so this
+        // field is required even though it restates the adapter's own id.
+        provider: PROVIDER_ID,
         name: meta.name ?? id,
         description: meta.description,
         inputModalities: inputs.includes('image') ? ['text', 'image'] : ['text'],
