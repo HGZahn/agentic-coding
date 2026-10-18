@@ -15,3 +15,4 @@ commit). `filePlan()` returns an empty plan when those directories are absent.
 - Bootstrap keeps a persistent Git checkout and runs `agentic` from it.
 - Edit the manifest → `mise run setup-all`. There is no `home/` to edit.
 - Verify with `node --test tests/*.test.mjs`; use temporary homes/projects, never live installs, when testing.
+- Network forensics: `scripts/zen-mitm/prove.sh` is a self-contained curl proof (local CA, TLS-terminating MITM, `--pinnedpubkey` accept/reject); hints and capture recipes live in `scripts/zen-mitm/README.md`. The deleted opencode zen-free extension is recoverable via `git show ac7731a:home/.pi/agent/extensions/dreamloop-zen.ts`.

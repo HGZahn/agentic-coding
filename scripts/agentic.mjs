@@ -1,4 +1,25 @@
 #!/usr/bin/env node
+/**
+ * agentic — profile/skill installer for this repo.
+ *
+ * FAST-FIND HINTS (re-discovery cheat sheet, avoid re-deriving next time):
+ * - Network forensics / TLS-pinning proof for the opencode zen-free endpoints:
+ *   scripts/zen-mitm/prove.sh  (self-contained: local CA, MITM, 3 curl tests;
+ *   docs + capture recipes in scripts/zen-mitm/README.md).
+ * - The old opencode zen-free pi extension (captured handshake, headers,
+ *   free-tier gate notes) was deleted by commit 3efbda4 "cleanup":
+ *       git show ac7731a:home/.pi/agent/extensions/dreamloop-zen.ts
+ * - Live zen free pool: GET https://opencode.ai/zen/v1/models (Bearer public);
+ *   limits/endpoint per id: https://models.opencode.ai/api.json
+ *   (free ids run on https://opencode.ai/inference/openai/v1/chat/completions).
+ * - Capture the real opencode CLI instead of guessing:
+ *       mitmdump -p 8899 &
+ *       HTTPS_PROXY=http://127.0.0.1:8899 \
+ *       NODE_EXTRA_CA_CERTS=$HOME/.mitmproxy/mitmproxy-ca-cert.pem opencode run "..."
+ * - opencode host state: ~/.config/opencode/opencode.jsonc (+ *.bak-*),
+ *   ~/.local/share/opencode/log/opencode.log (grep -i zen),
+ *   coredumps in /var/lib/systemd/coredump (core.opencode.*).
+ */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
