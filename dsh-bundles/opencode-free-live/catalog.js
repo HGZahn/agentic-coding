@@ -8,9 +8,21 @@ const CATALOG_URL = 'https://models.opencode.ai/api.json'
 const CACHE_TTL_MS = 300_000 // 5 minutes
 
 /**
- * Fetches the 42 free opencode models from models.opencode.ai/api.json.
+ * Fetches the free opencode models from models.opencode.ai/api.json.
  * Stores full metadata per model (reasoning_options, modalities, limit, cost).
  * Falls back to a cached snapshot if the network is unavailable.
+ *
+ * PROVENANCE (brief): models.opencode.ai/api.json is the full public model
+ * directory (127 models, 42 of them free-named with zero cost as of
+ * 2026-10-18). The CLI's own GET https://opencode.ai/zen/v1/models lists only
+ * 9 free-named ids without metadata, so api.json is the right source for the
+ * "42 free models" set. Verified against a live fetch + the MITM capture.
+ * NOTE: limit fields are `context`/`output` (NOT contextWindow/maxOutput),
+ * checked directly against the live api.json payload.
+ *
+ * UPDATE HINT: the free set can drift (server-side deprecations happen —
+ * muse-spark-1.3-contributor-free returned 410 ModelDeprecated on 2026-10-18).
+ * Re-check the count filter if models start erroring.
  */
 export class ModelCatalog {
   #models = new Map()
@@ -50,7 +62,7 @@ export class ModelCatalog {
 
   async #refresh() {
     try {
-      const resp = await fetch(CATALOG_URL, { timeout: 10000 })
+      const resp = await fetch(CATALOG_URL, { signal: AbortSignal.timeout(10_000) })
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
       const data = await resp.json()
       const opencode = data?.opencode?.models ?? {}

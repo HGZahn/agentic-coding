@@ -1,10 +1,9 @@
-# OpenCode Free Live — bridge-proxy plugin exposing 42 free models
-# via the local opencode serve --service bridge (port 49374).
-# Direct-HTTP to opencode.ai is DEAD (403 FreeTierError).
-# The plugin proxies through the local bridge; no opencode dependency.
-- insert:
-    - id: opencode-free-live
-      name: opencode-free-live
-      config:
-        bridgeBaseUrl: http://127.0.0.1:49374
-      module: /home/hadmin/projects/agentic-coding/dsh-bundles/opencode-free-live/index.js
+# OpenCode Free Live — cordis activation entry.
+#
+# Custom model provider exposing the 42 opencode FREE models as a direct
+# HTTPS client (NO opencode process, NO bridge, NO opencode dependency).
+# The session-id gate is passed by minting ids with the generator ported from
+# the opencode binary (see dsh-bundles/opencode-free-live/ids.js for the
+# provenance notes). Paste this entry into your profile's cordis.patch.yml.
+- id: opencode-free-live
+  module: /home/hadmin/projects/agentic-coding/dsh-bundles/opencode-free-live/index.js

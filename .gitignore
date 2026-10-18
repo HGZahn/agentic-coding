@@ -4,5 +4,5 @@ node_modules/
 *.bak.*
 .pi/
 .zen-mitm-work/
-dsh-bundles/opencode-free-live/.free-models-cache.json
+.oc-re/
 dsh-bundles/opencode-free-live/.free-models-cache.json
