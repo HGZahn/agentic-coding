@@ -215,8 +215,16 @@ export class OpenCodeFreeAdapter extends LlmAdapter {
       } catch {
         continue // tolerate keep-alives / partial junk lines
       }
+      // push() returns a single StreamChunk or an ARRAY of them (when a block
+      // opens, the block-start and the first delta are emitted together).
+      // Flatten here: yielding the array itself would hand the caller an object
+      // whose .type is undefined.
       const chunk = assembler.push(event)
-      if (chunk) yield chunk
+      if (Array.isArray(chunk)) {
+        for (const item of chunk) yield item
+      } else if (chunk) {
+        yield chunk
+      }
     }
     for (const chunk of assembler.finish()) yield chunk
   }
@@ -289,12 +297,23 @@ export class CompletionsAssembler {
     if (!delta) return undefined
 
     // One delta may legally carry several fields at once; process all of them.
+    // Reasoning field name: the opencode free tier streams `reasoning_content`
+    // (proven by raw-SSE capture, see scripts/zen-mitm notes), and each model's
+    // catalog entry states it explicitly as {"interleaved":{"field":"reasoning_content"}}.
+    // A few OpenAI-compatible upstreams use the shorter `reasoning`; accept both
+    // so a model that switches spelling still streams.
     const chunks = []
-    if (typeof delta.reasoning === 'string' && delta.reasoning.length > 0) {
+    const reasoningText =
+      typeof delta.reasoning_content === 'string' && delta.reasoning_content.length > 0
+        ? delta.reasoning_content
+        : typeof delta.reasoning === 'string' && delta.reasoning.length > 0
+          ? delta.reasoning
+          : undefined
+    if (reasoningText !== undefined) {
       const { block, opened } = this.#ensureBlock('reasoning')
-      block.text += delta.reasoning
+      block.text += reasoningText
       if (opened) chunks.push({ type: 'block-start', index: block.index, blockType: 'reasoning' })
-      chunks.push({ type: 'reasoning-delta', index: block.index, text: delta.reasoning })
+      chunks.push({ type: 'reasoning-delta', index: block.index, text: reasoningText })
     }
     if (typeof delta.content === 'string' && delta.content.length > 0) {
       const { block, opened } = this.#ensureBlock('text')

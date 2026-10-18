@@ -6,3 +6,4 @@ node_modules/
 .zen-mitm-work/
 .oc-re/
 dsh-bundles/opencode-free-live/.free-models-cache.json
+dsh-bundles/opencode-free-live/.verify-*
