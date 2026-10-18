@@ -178,13 +178,18 @@ export class OpenCodeFreeAdapter extends LlmAdapter {
   }
 
   async *stream(options) {
-    const lane = apiForModel(options.model)
+    // options.model is a ResolvedModel object (prepareCall/resolveModel pass the
+    // object through, not a bare id string). Upstream needs the plain id string,
+    // otherwise it answers HTTP 500 with an empty message.
+    const modelId = typeof options.model === 'string' ? options.model : options.model?.id
+    if (!modelId) throw errorFor(400, 'missing model id')
+    const lane = apiForModel(modelId)
     const session = mintSession()
     const url = lane === 'openai-responses' ? RESPONSES_URL : CHAT_COMPLETIONS_URL
     const body =
       lane === 'openai-responses'
-        ? this.#responsesBody(options)
-        : this.#completionsBody(options)
+        ? this.#responsesBody({ ...options, model: modelId })
+        : this.#completionsBody({ ...options, model: modelId })
 
     const response = await this.#fetchImpl(url, {
       method: 'POST',

@@ -5,5 +5,8 @@
   "main": "index.js",
   "type": "module",
   "license": "MIT",
+  "exports": { ".": "./index.js", "./package.json": "./package.json" },
+  "files": ["*.js", "cordis.patch.yml", "README.md"],
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
   "dependencies": {}
 }

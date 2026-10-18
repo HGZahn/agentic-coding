@@ -3,7 +3,12 @@
 # Custom model provider exposing the 42 opencode FREE models as a direct
 # HTTPS client (NO opencode process, NO bridge, NO opencode dependency).
 # The session-id gate is passed by minting ids with the generator ported from
-# the opencode binary (see dsh-bundles/opencode-free-live/ids.js for the
-# provenance notes). Paste this entry into your profile's cordis.patch.yml.
+# the opencode binary (see ids.js for the provenance notes).
+#
+# Works two ways:
+#   (a) as a bundle — add "dsh-plugin-opencode-free-live" (or the link: path)
+#       to dsh.profile.bundles in your profile's package.json; this patch is
+#       picked up automatically via package.json -> dsh.bundle.patch.
+#   (b) by hand — paste the entry below into your profile's cordis.patch.yml.
 - id: opencode-free-live
-  module: /home/hadmin/projects/agentic-coding/dsh-bundles/opencode-free-live/index.js
+  name: dsh-plugin-opencode-free-live
