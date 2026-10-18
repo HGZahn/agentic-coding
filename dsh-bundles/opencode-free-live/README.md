@@ -4,13 +4,44 @@ DSH plugin registering a **custom model provider** (`opencode-free-live`) that e
 **42 opencode FREE models** over **direct HTTPS** to `opencode.ai` — no opencode process, no
 bridge, no opencode dependency at runtime.
 
-```yaml
-# cordis.patch.yml
-- id: opencode-free-live
-  module: /home/hadmin/projects/agentic-coding/dsh-bundles/opencode-free-live/index.js
+Models then appear as `opencode-free-live/<model-id>` (e.g. `opencode-free-live/deepseek-v4.1-flash-free`).
+
+## Install / activate
+
+Works as a profile bundle. Copy this directory anywhere (e.g. `~/dsh-bundles/opencode-free-live`)
+and register it in your profile's `package.json`:
+
+```jsonc
+// ~/.dsh/profiles/web/package.json
+{
+  "dsh": { "profile": { "bundles": [ "dsh-plugin-opencode-free-live" ] } },
+  "dependencies": {
+    "dsh-plugin-opencode-free-live": "link:/home/<you>/dsh-bundles/opencode-free-live"
+  }
+}
 ```
 
-Models then appear as `opencode-free-live/<model-id>` (e.g. `opencode-free-live/deepseek-v4.1-flash-free`).
+Then install the link and restart DSH:
+
+```bash
+cd ~/.dsh/profiles/web && pnpm install
+```
+
+`package.json` carries `"dsh": { "bundle": { "patch": "./cordis.patch.yml" } }`, so the patch —
+`- id: opencode-free-live` / `name: dsh-plugin-opencode-free-live` — is picked up automatically;
+no absolute path is baked in. Activation requires a **DSH restart** to take effect.
+
+<details>
+<summary>Alternative: paste the entry by hand</summary>
+
+Add to your profile's `cordis.patch.yml`:
+
+```yaml
+- id: opencode-free-live
+  name: dsh-plugin-opencode-free-live
+```
+
+</details>
 
 ## How it works
 
